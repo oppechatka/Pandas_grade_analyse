@@ -55,8 +55,40 @@ chemso = {"Задание (Avg)": 0.006,
                                  "Grade Percent"]
           }
 
+elb = {"Домашная работа (Avg)": 0.006,
+       "Итоговое задание (Avg)": 0.004,
+       "Grade Percent": 1,
+       "Columns_for_order": ["Домашняя работа",
+                             "Экзамен",
+                             "Итоговый балл"],
+       "Columns_for_report": ["Email",
+                              "Домашная работа (Avg)",
+                              "Итоговое задание (Avg)",
+                              "Grade Percent"]
+       }
+
+ecos = {"Задание (Avg)": 0.0015,
+        "Практическое задание (Avg)": 0.004,
+        "Эссе": 0.0005,
+        "Итоговое тестирование (Avg)": 0.004,
+        "Grade Percent": 1,
+        "Columns_for_order": ["Задания",
+                              "Практические задания",
+                              "Эссе",
+                              "Экзамен",
+                              "Итоговый балл"],
+        "Columns_for_report": ["Email",
+                               "Задание (Avg)",
+                               "Практическое задание (Avg)",
+                               "Эссе",
+                               "Итоговое тестирование (Avg)",
+                               "Grade Percent"]
+        }
+
 courses = {'calc':   calc,
            'tepl':   tepl,
            'teco':   teco,
            'chemso': chemso,
+           'elb':    elb,
+           'ecos':   ecos,
            }

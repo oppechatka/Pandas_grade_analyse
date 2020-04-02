@@ -32,8 +32,12 @@ def make_grade_column(course_order,             # DataFrame заявки на к
     for x in range(number_of_rows):
         email = course_order["Адрес электронной почты"][x]
         if email in possible_mail:
-            digit = grade_report[grade_report["Email"] == email][col_name].iloc[0] / rate
-            grade_list.append(int(digit.__round__(0)))
+            grade = grade_report[grade_report["Email"] == email][col_name].iloc[0]
+            if (grade == "Not Attempted") or (grade == "Not Available"):
+                grade_list.append('Не приступал')
+            else:
+                digit = grade_report[grade_report["Email"] == email][col_name].iloc[0] / rate
+                grade_list.append(int(digit.__round__(0)))
         else:
             grade_list.append("Нет на курсе")
     return grade_list
