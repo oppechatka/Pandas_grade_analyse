@@ -1,23 +1,23 @@
 from os import listdir
 import pandas as pnd
-import grade_settings as GS
+import grade_settings as gs
 
-REQUESTS_FILES = listdir(GS.REQUESTS_DIRECTORY)
-GRADE_REPORT_FILES = listdir(GS.GRADE_REPORTS_DIRECTORY)
+REQUESTS_FILES = listdir(gs.REQUESTS_DIRECTORY)
+GRADE_REPORT_FILES = listdir(gs.GRADE_REPORTS_DIRECTORY)
 
 
 def get_grade_report(request_file: str):
-    crs_request_df = pnd.read_excel(GS.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
+    crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
     grade_report_file = crs_request_df.iloc[9, 1] + '.csv'                          # Получаем имя выгрузки
     grade_settings = "_".join(grade_report_file.split(sep='_')[:-1]).casefold()     # ключ настроек
     if grade_report_file not in GRADE_REPORT_FILES:
         print("Нет файла с выгрузкой в папке для " + grade_report_file)
         return 0
-    elif grade_settings not in GS.courses:
+    elif grade_settings not in gs.courses:
         print("Нет словаря с настройками для курса для " + grade_settings)
         return 0
     else:
-        grade_settings = GS.courses[grade_settings]
+        grade_settings = gs.courses[grade_settings]
         return [grade_report_file, grade_settings]
 
 
@@ -34,7 +34,7 @@ def make_grade_column(course_order,             # DataFrame заявки на к
         if email in possible_mail:
             grade = grade_report[grade_report["Email"] == email][col_name].iloc[0]
             if (grade == "Not Attempted") or (grade == "Not Available"):
-                grade_list.append('Не приступал')
+                grade_list.append(int(0))
             else:
                 digit = grade_report[grade_report["Email"] == email][col_name].iloc[0] / rate
                 grade_list.append(int(digit.__round__(0)))
@@ -46,9 +46,9 @@ def make_grade_column(course_order,             # DataFrame заявки на к
 def get_statement(file_name: str):
     gr_report_file, gr_settings = get_grade_report(file_name)                       # Получаем ссылки на настройки
 
-    course_request_df = pnd.read_excel(GS.REQUESTS_DIRECTORY + '/' + file_name, 1)  # DF заявки
+    course_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file_name, 1)  # DF заявки
 
-    grade_report_df = pnd.read_csv(GS.GRADE_REPORTS_DIRECTORY +
+    grade_report_df = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY +
                                    '/' + gr_report_file, delimiter=',')[
         gr_settings["Columns_for_report"]]                                          # DF выгрузки
 
@@ -58,13 +58,13 @@ def get_statement(file_name: str):
         test_list = make_grade_column(course_request_df, grade_report_df, possible_mail, x, gr_settings[x])
         course_request_df[y] = test_list
 
-    course_request_df.to_excel(GS.STATEMENTS_DIRECTORY +
+    course_request_df.to_excel(gs.STATEMENTS_DIRECTORY +
                                '/' + file_name.rstrip('.xlsx') + "_ведомость.xlsx", index=False)
 
     print(file_name.rstrip('.xlsx') + "_ведомость.xlsx" + " - OK!")
 
 
-for file in REQUESTS_FILES:
-    get_statement(file)
+# for file in REQUESTS_FILES:
+#     get_statement(file)
 
-# get_statement('UrFU_0029_КСЕ.xlsx')
+get_statement('UrFU_0036_ТКМ.xlsx')
