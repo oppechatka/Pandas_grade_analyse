@@ -39,11 +39,6 @@ def make_grade_column(course_order,             # DataFrame заявки на к
     return grade_list
 
 
-# TEST_FILE_NAME = "UrFU_0001.xlsx"
-# TEST_GRADE_REPORT = "urfu_CALC_spring_2020_grade_report_2020-04-02-0401.csv"
-# course_ord = pnd.read_excel(TEST_FILE_NAME, 0)    # Берем первый лист заявки
-# course_cipher = course_ord.iloc[9, 1]             # Получаем шифр курса. Всегда в одной ячейке
-
 for file in REQUESTS_FILES:
     gr_report_file, gr_settings = get_grade_report(file)                       # Получаем файл и настройки
 
@@ -59,3 +54,4 @@ for file in REQUESTS_FILES:
         course_request_df[y] = test_list
 
     course_request_df.to_excel(GS.STATEMENTS_DIRECTORY + '/' + file.rstrip('.xlsx') + "_ведомость.xlsx", index=False)
+    print(file.rstrip('.xlsx') + "_ведомость.xlsx" + " - OK!")
