@@ -85,10 +85,55 @@ ecos = {"Задание (Avg)": 0.0015,
                                "Grade Percent"]
         }
 
-courses = {'calc':   calc,
-           'tepl':   tepl,
-           'teco':   teco,
-           'chemso': chemso,
-           'elb':    elb,
-           'ecos':   ecos,
+lifesafety = {"Тестовое задание (Avg)": 0.004,  # Требует доработки после доабвления экзамена
+              "Grade Percent": 1,
+              "Columns_for_order": ["Тесты",
+                                    "Итоговый балл"],
+              "Columns_for_report": ["Email",
+                                     "Тестовое задание (Avg)",
+                                     "Grade Percent"]
+              }
+
+mcs = {"Тестовое задание (Avg)": 0.0015,
+       "Учебное задание (Avg)": 0.0015,
+       "Контрольные задания (Avg)": 0.003,
+       "Итоговый контроль (Avg)": 0.004,
+       "Grade Percent": 1,
+       "Columns_for_order": ["Тесты",
+                             "Учебные задания",
+                             "Контрольные задания",
+                             "Экзамен",
+                             "Итоговый балл"],
+       "Columns_for_report": ["Email",
+                              "Тестовое задание (Avg)",
+                              "Учебное задание (Avg)",
+                              "Контрольные задания (Avg)",
+                              "Итоговый контроль (Avg)",
+                              "Grade Percent"]
+       }
+
+hist_view = {"Test (Avg)": 0.003,
+             "modul (Avg)": 0.003,
+             "Final Exam (Avg)": 0.004,
+             "Grade Percent": 1,
+             "Columns_for_order": ["Тесты",
+                                   "Учебные задания",
+                                   "Экзамен",
+                                   "Итоговый балл"],
+             "Columns_for_report": ["Email",
+                                    "Test (Avg)",
+                                    "modul (Avg)",
+                                    "Final Exam (Avg)",
+                                    "Grade Percent"]
+             }
+
+courses = {'calc':        calc,
+           'tepl':        tepl,
+           'teco':        teco,
+           'chemso':      chemso,
+           'elb':         elb,
+           'ecos':        ecos,
+           'lifesafety':  lifesafety,
+           'mcs':         mcs,
+           'hist_view':   hist_view,
            }

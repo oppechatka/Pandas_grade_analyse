@@ -14,7 +14,7 @@ def get_grade_report(request_file: str):
         print("Нет файла с выгрузкой в папке для " + grade_report_file)
         return 0
     elif grade_settings not in GS.courses:
-        print("Нет словаря с настройками для курса для" + grade_settings)
+        print("Нет словаря с настройками для курса для " + grade_settings)
         return 0
     else:
         grade_settings = GS.courses[grade_settings]
@@ -43,19 +43,28 @@ def make_grade_column(course_order,             # DataFrame заявки на к
     return grade_list
 
 
-for file in REQUESTS_FILES:
-    gr_report_file, gr_settings = get_grade_report(file)                       # Получаем файл и настройки
+def get_statement(file_name: str):
+    gr_report_file, gr_settings = get_grade_report(file_name)                       # Получаем ссылки на настройки
 
-    course_request_df = pnd.read_excel(GS.REQUESTS_DIRECTORY + '/' + file, 1)  # Берем второй лист заявки
+    course_request_df = pnd.read_excel(GS.REQUESTS_DIRECTORY + '/' + file_name, 1)  # DF заявки
 
     grade_report_df = pnd.read_csv(GS.GRADE_REPORTS_DIRECTORY +
-                               '/' + gr_report_file, delimiter=',')[gr_settings["Columns_for_report"]]  # DF выгрузки
+                                   '/' + gr_report_file, delimiter=',')[
+        gr_settings["Columns_for_report"]]                                          # DF выгрузки
 
-    possible_mail = grade_report_df["Email"].tolist()    # список возможных почт для обработки исключений
+    possible_mail = grade_report_df["Email"].tolist()  # список возможных почт для обработки исключений
 
     for x, y in zip(gr_settings["Columns_for_report"][1:], gr_settings["Columns_for_order"]):
         test_list = make_grade_column(course_request_df, grade_report_df, possible_mail, x, gr_settings[x])
         course_request_df[y] = test_list
 
-    course_request_df.to_excel(GS.STATEMENTS_DIRECTORY + '/' + file.rstrip('.xlsx') + "_ведомость.xlsx", index=False)
-    print(file.rstrip('.xlsx') + "_ведомость.xlsx" + " - OK!")
+    course_request_df.to_excel(GS.STATEMENTS_DIRECTORY +
+                               '/' + file_name.rstrip('.xlsx') + "_ведомость.xlsx", index=False)
+
+    print(file_name.rstrip('.xlsx') + "_ведомость.xlsx" + " - OK!")
+
+
+for file in REQUESTS_FILES:
+    get_statement(file)
+
+# get_statement('UrFU_0029_КСЕ.xlsx')
