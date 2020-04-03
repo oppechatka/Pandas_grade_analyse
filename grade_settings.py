@@ -328,6 +328,48 @@ philosophy = {"Тест (Avg)": 0.002,
                                      "Grade Percent"]
               }
 
+bioeco = {"Учебное задание (Avg)": 0.002,
+          "Промежуточное задание (Avg)": 0.004,
+          "Итоговый контроль (Avg)": 0.004,
+          "Grade Percent": 1,
+          "Columns_for_order": ["Учебные задания",
+                                "Промежуточные задания",
+                                "Экзамен",
+                                "Итоговый балл"],
+          "Columns_for_report": ["Email",
+                                 "Учебное задание (Avg)",
+                                 "Промежуточное задание (Avg)",
+                                 "Итоговый контроль (Avg)",
+                                 "Grade Percent"]
+          }
+
+its = {"Тестовые задания (Avg)": 0.004,  # Требует доработки после доабвления экзамена
+       "Grade Percent": 1,
+       "Columns_for_order": ["Тесты",
+                             "Итоговый балл"],
+       "Columns_for_report": ["Email",
+                              "Тестовые задания (Avg)",
+                              "Grade Percent"]
+       }
+
+ecoeff = {"Тестирование (Avg)": 0.002,
+          "Учебное задание (Avg)": 0.0015,
+          "Контрольные задания (Avg)": 0.0025,
+          "Итоговое тестирование (Avg)": 0.004,
+          "Grade Percent": 1,
+          "Columns_for_order": ["Тесты",
+                                "Учебные задания",
+                                "Контрольные задания",
+                                "Экзамен",
+                                "Итоговый балл"],
+          "Columns_for_report": ["Email",
+                                 "Тестирование (Avg)",
+                                 "Учебное задание (Avg)",
+                                 "Контрольные задания (Avg)",
+                                 "Итоговое тестирование (Avg)",
+                                 "Grade Percent"]
+          }
+
 courses = {'calc':         calc,
            'tepl':         tepl,
            'teco':         teco,
@@ -350,4 +392,7 @@ courses = {'calc':         calc,
            'elecd':        elecd,
            'sigproc':      sigproc,
            'philosophy':   philosophy,
+           'bioeco':       bioeco,
+           'its':          its,
+           'ecoeff':       ecoeff,
            }
