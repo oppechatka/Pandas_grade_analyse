@@ -271,7 +271,7 @@ inclus_m2 = {"Тестирование к разделу (Avg)": 0.002,
                                     "Grade Percent"]
              }
 
-smngm = {"Учебное задание (Avg)": 0.003,
+smngm = {"Учебное задание (Avg)": 0.006,
          "Итоговый контроль (Avg)": 0.004,
          "Grade Percent": 1,
          "Columns_for_order": ["Учебные задания",
@@ -282,6 +282,51 @@ smngm = {"Учебное задание (Avg)": 0.003,
                                 "Итоговый контроль (Avg)",
                                 "Grade Percent"]
          }
+
+elecd = {"Домашние задания1 (Avg)": 0.004,
+         "Домашние задания2 (Avg)": 0.002,
+         "Итоговый контроль (Avg)": 0.004,
+         "Grade Percent": 1,
+         "Columns_for_order": ["Домашние задания 1",
+                               "Домашние задания 2",
+                               "Экзамен",
+                               "Итоговый балл"],
+         "Columns_for_report": ["Email",
+                                "Домашние задания1 (Avg)",
+                                "Домашние задания2 (Avg)",
+                                "Итоговый контроль (Avg)",
+                                "Grade Percent"]
+         }
+
+sigproc = {"Тесты (Avg)": 0.006,
+           "Итоговый контроль (Avg)": 0.004,
+           "Grade Percent": 1,
+           "Columns_for_order": ["Тесты",
+                                 "Экзамен",
+                                 "Итоговый балл"],
+           "Columns_for_report": ["Email",
+                                  "Тесты (Avg)",
+                                  "Итоговый контроль (Avg)",
+                                  "Grade Percent"]
+           }
+
+philosophy = {"Тест (Avg)": 0.002,
+              "Учебное задание (Avg)": 0.002,
+              "Контрольное задание (Avg)": 0.003,
+              "Итоговый контроль (Avg)": 0.003,
+              "Grade Percent": 1,
+              "Columns_for_order": ["Тесты",
+                                    "Учебные задания",
+                                    "Контрольные задания",
+                                    "Экзамен",
+                                    "Итоговый балл"],
+              "Columns_for_report": ["Email",
+                                     "Тест (Avg)",
+                                     "Учебное задание (Avg)",
+                                     "Контрольное задание (Avg)",
+                                     "Итоговый контроль (Avg)",
+                                     "Grade Percent"]
+              }
 
 courses = {'calc':         calc,
            'tepl':         tepl,
@@ -302,4 +347,7 @@ courses = {'calc':         calc,
            'psymedia':     psymedia,
            'inclus_m2':    inclus_m2,
            'smngm':        smngm,
+           'elecd':        elecd,
+           'sigproc':      sigproc,
+           'philosophy':   philosophy,
            }

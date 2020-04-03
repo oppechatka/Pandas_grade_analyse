@@ -30,7 +30,7 @@ def make_grade_column(course_order,             # DataFrame заявки на к
     grade_list = []                             # Пустой список с оценками. Добавлется в DataFrame столбцом
     number_of_rows = course_order.shape[0]      # Количество строк в DataFrame заявки на курс
     for x in range(number_of_rows):
-        email = course_order["Адрес электронной почты"][x]
+        email = str(course_order["Адрес электронной почты"][x]).lower()  # Переводим почту в нижний регистр
         if email in possible_mail:
             grade = grade_report[grade_report["Email"] == email][col_name].iloc[0]
             if (grade == "Not Attempted") or (grade == "Not Available"):
@@ -52,7 +52,7 @@ def get_statement(file_name: str):
                                    '/' + gr_report_file, delimiter=',')[
         gr_settings["Columns_for_report"]]                                          # DF выгрузки
 
-    possible_mail = grade_report_df["Email"].tolist()  # список возможных почт для обработки исключений
+    possible_mail = grade_report_df["Email"].str.lower().tolist()  # список возможных почт для обработки исключений
 
     for x, y in zip(gr_settings["Columns_for_report"][1:], gr_settings["Columns_for_order"]):
         test_list = make_grade_column(course_request_df, grade_report_df, possible_mail, x, gr_settings[x])
@@ -67,4 +67,4 @@ def get_statement(file_name: str):
 # for file in REQUESTS_FILES:
 #     get_statement(file)
 
-get_statement('UrFU_0044_Самоменеджмент.xlsx')
+get_statement('UrFU_0048.xlsx')
