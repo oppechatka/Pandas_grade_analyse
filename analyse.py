@@ -67,4 +67,5 @@ def get_statement(file_name: str):
 # for file in REQUESTS_FILES:
 #     get_statement(file)
 
+
 get_statement('UrFU_0048.xlsx')
