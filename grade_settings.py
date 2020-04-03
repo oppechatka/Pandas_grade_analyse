@@ -208,6 +208,81 @@ csharp = {"Упражнения (Avg)": 0.002,
                                  "Grade Percent"]
           }
 
+intpr = {"Тест (Avg)": 0.003,
+         "Учебные задания (Avg)": 0.003,
+         "Final Exam (Avg)": 0.004,
+         "Grade Percent": 1,
+         "Columns_for_order": ["Тесты",
+                               "Учебные задания",
+                               "Экзамен",
+                               "Итоговый балл"],
+         "Columns_for_report": ["Email",
+                                "Тест (Avg)",
+                                "Учебные задания (Avg)",
+                                "Final Exam (Avg)",
+                                "Grade Percent"]
+         }
+
+edubase = {"Контрольное задание (Avg)": 0.003,
+           "Промежуточная аттестация (Avg)": 0.003,
+           "Final Exam (Avg)": 0.004,
+           "Grade Percent": 1,
+           "Columns_for_order": ["Контрольные задания",
+                                 "Промежуточная аттестация",
+                                 "Экзамен",
+                                 "Итоговый балл"],
+           "Columns_for_report": ["Email",
+                                  "Контрольное задание (Avg)",
+                                  "Промежуточная аттестация (Avg)",
+                                  "Final Exam (Avg)",
+                                  "Grade Percent"]
+           }
+
+psymedia = {"Кроссворд (Avg)": 0.002,
+            "Контрольное заданние (Avg)": 0.002,
+            "Учебное задание (Avg)": 0.002,
+            "Итоговое тестирование (Avg)": 0.004,
+            "Grade Percent": 1,
+            "Columns_for_order": ["Кроссворды",
+                                  "Контрольные задания",
+                                  "Учебные задания",
+                                  "Экзамен",
+                                  "Итоговый балл"],
+            "Columns_for_report": ["Email",
+                                   "Кроссворд (Avg)",
+                                   "Контрольное заданние (Avg)",
+                                   "Учебное задание (Avg)",
+                                   "Итоговое тестирование (Avg)",
+                                   "Grade Percent"]
+            }
+
+inclus_m2 = {"Тестирование к разделу (Avg)": 0.002,
+             "Задание к разделу (Avg)": 0.004,
+             "Итоговое тестирование (Avg)": 0.004,
+             "Grade Percent": 1,
+             "Columns_for_order": ["Тесты",
+                                   "Задания",
+                                   "Экзамен",
+                                   "Итоговый балл"],
+             "Columns_for_report": ["Email",
+                                    "Тестирование к разделу (Avg)",
+                                    "Задание к разделу (Avg)",
+                                    "Итоговое тестирование (Avg)",
+                                    "Grade Percent"]
+             }
+
+smngm = {"Учебное задание (Avg)": 0.003,
+         "Итоговый контроль (Avg)": 0.004,
+         "Grade Percent": 1,
+         "Columns_for_order": ["Учебные задания",
+                               "Экзамен",
+                               "Итоговый балл"],
+         "Columns_for_report": ["Email",
+                                "Учебное задание (Avg)",
+                                "Итоговый контроль (Avg)",
+                                "Grade Percent"]
+         }
+
 courses = {'calc':         calc,
            'tepl':         tepl,
            'teco':         teco,
@@ -222,4 +297,9 @@ courses = {'calc':         calc,
            'designbasics': designbasics,
            'metr':         metr,
            'csharp':       csharp,
+           'intpr':        intpr,
+           'edubase':      edubase,
+           'psymedia':     psymedia,
+           'inclus_m2':    inclus_m2,
+           'smngm':        smngm,
            }
