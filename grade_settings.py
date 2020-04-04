@@ -577,7 +577,7 @@ personalsafety = {"Тестирование к теме (Avg)": 0.0032,
                                          "Grade Percent"]
                   }
 
-managemach = {"Тестовое задание (Avg)": 0.0015,
+manegemach = {"Тестовое задание (Avg)": 0.0015,
               "Учебное задание (Avg)": 0.0015,
               "Контрольное задание (Avg)": 0.0030,
               "Итоговое тестирование (Avg)": 0.004,
@@ -645,6 +645,6 @@ courses = {'calc':         calc,
            'engm':         engm,
            'datainf':      datainf,
            'personalsafety': personalsafety,
-           'managemach':   managemach,
+           'manegemach':   manegemach,
            'telecom':      telecom,
            }

@@ -7,6 +7,7 @@ GRADE_REPORT_FILES = listdir(gs.GRADE_REPORTS_DIRECTORY)
 
 
 def get_grade_report(request_file: str):
+    print(request_file)
     crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
     grade_report_file = crs_request_df.iloc[9, 1] + '.csv'                          # Получаем имя выгрузки
     grade_settings = "_".join(grade_report_file.split(sep='_')[:-1]).casefold()     # ключ настроек
@@ -52,7 +53,9 @@ def get_statement(file_name: str):
                                    '/' + gr_report_file, delimiter=',')[
         gr_settings["Columns_for_report"]]                                          # DF выгрузки
 
-    possible_mail = grade_report_df["Email"].str.lower().tolist()  # список возможных почт для обработки исключений
+    grade_report_df["Email"].str.lower()                                            # переводи все почты в нижний рег
+
+    possible_mail = grade_report_df["Email"].tolist()  # список возможных почт для обработки исключений
 
     for x, y in zip(gr_settings["Columns_for_report"][1:], gr_settings["Columns_for_order"]):
         test_list = make_grade_column(course_request_df, grade_report_df, possible_mail, x, gr_settings[x])
@@ -64,7 +67,7 @@ def get_statement(file_name: str):
     print(file_name.rstrip('.xlsx') + "_ведомость.xlsx" + " - OK!")
 
 
-# for file in REQUESTS_FILES:
-#     get_statement(file)
+for file in REQUESTS_FILES:
+    get_statement(file)
 
-get_statement('UrFU_0070.xlsx')
+# get_statement('UrFU_0101.xlsx')
