@@ -7,7 +7,7 @@ GRADE_REPORT_FILES = listdir(gs.GRADE_REPORTS_DIRECTORY)
 
 
 def get_grade_report(request_file: str):
-    print(request_file)
+    # print(request_file)   # Проверка какой файл обрабатывается
     crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
     grade_report_file = crs_request_df.iloc[9, 1] + '.csv'                          # Получаем имя выгрузки
     grade_settings = "_".join(grade_report_file.split(sep='_')[:-1]).casefold()     # ключ настроек
