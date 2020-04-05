@@ -136,11 +136,11 @@ def get_full_statement(file_name: str):
     print(file_name.rstrip('.xlsx') + "_полная_ведомость.xlsx" + " - OK!")
 
 
-# for file in REQUESTS_FILES:
-#     get_statement(file)
+for file in REQUESTS_FILES:
+    get_statement(file)
 
-# for file in REQUESTS_FILES:
-#     get_full_statement(file)
+for file in REQUESTS_FILES:
+    get_full_statement(file)
 
-get_statement('UrFU_0002.xlsx')
+# get_statement('UrFU_0002.xlsx')
 # get_full_statement('UrFU_0002.xlsx')

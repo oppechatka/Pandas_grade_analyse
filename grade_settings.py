@@ -607,44 +607,44 @@ telecom = {"Тестовое задание (Avg)": 0.006,
                                   "Grade Percent"]
            }
 
-courses = {'calc':         calc,
-           'tepl':         tepl,
-           'teco':         teco,
-           'chemso':       chemso,
-           'elb':          elb,
-           'ecos':         ecos,
-           'lifesafety':   lifesafety,
-           'mcs':          mcs,
-           'hist_view':    hist_view,
-           'hist':         hist,
-           'rubscult':     rubscult,
-           'designbasics': designbasics,
-           'metr':         metr,
-           'csharp':       csharp,
-           'intpr':        intpr,
-           'edubase':      edubase,
-           'psymedia':     psymedia,
-           'inclus_m2':    inclus_m2,
-           'smngm':        smngm,
-           'elecd':        elecd,
-           'sigproc':      sigproc,
-           'philosophy':   philosophy,
-           'bioeco':       bioeco,
-           'its':          its,
-           'ecoeff':       ecoeff,
-           'systeng':      systeng,
-           'cellbio':      cellbio,
-           'introbe':      introbe,
-           'crithink':     crithink,
-           'archc':        archc,
-           'philsci':      philsci,
-           'triz':         triz,
-           'prgrmm':       prgrmm,
-           'nucmed':       nucmed,
-           'geom':         geom,
-           'engm':         engm,
-           'datainf':      datainf,
-           'personalsafety': personalsafety,
-           'manegemach':   manegemach,
-           'telecom':      telecom,
+courses = {'calc':         calc,                # Математический анализ
+           'tepl':         tepl,                # Теплотехника
+           'teco':         teco,                # Технология конструкционных материалов
+           'chemso':       chemso,              # Аккумуляторы, топливные элементы и их роль в современном мире
+           'elb':          elb,                 # Основы электротехники и электроники
+           'ecos':         ecos,                # Системная динамика устойчивого развития (Системная экология)
+           'lifesafety':   lifesafety,          # Безопасность жизнедеятельности
+           'mcs':          mcs,                 # Естественнонаучная картина мира
+           'hist_view':    hist_view,           # История: 5 подходов к историческому развитию
+           'hist':         hist,                # История
+           'rubscult':     rubscult,            # Культура русской деловой речи
+           'designbasics': designbasics,        # Основы дизайна
+           'metr':         metr,                # Основы метрологии, стандартизация и оценка соответствия
+           'csharp':       csharp,              # Программирование на C#
+           'intpr':        intpr,               # Управление интеллектуальной собственностью
+           'edubase':      edubase,             # Основы педагогической деятельности
+           'psymedia':     psymedia,            # Психология медиакоммуникаций цифровой эпохи
+           'inclus_m2':    inclus_m2,           # Развитие ресурсов организма (для лиц с ОВЗ)
+           'smngm':        smngm,               # Самоменеджмент
+           'elecd':        elecd,               # Электродинамика
+           'sigproc':      sigproc,             # Основы цифровой обработки сигналов
+           'philosophy':   philosophy,          # Философия
+           'bioeco':       bioeco,              # Основные концепции биологии и экологии
+           'its':          its,                 # Информационные технологии и сервисы
+           'ecoeff':       ecoeff,              # Основы экономической эффективности производства
+           'systeng':      systeng,             # Практики системной инженерии
+           'cellbio':      cellbio,             # Введение в биологию клетки
+           'introbe':      introbe,             # Введение в биологию и экологию
+           'crithink':     crithink,            # Основы критического мышления
+           'archc':        archc,               # Основы архитектуры и строительных конструкций
+           'philsci':      philsci,             # Философия и методология науки
+           'triz':         triz,                # Теория решения изобретательских задач
+           'prgrmm':       prgrmm,              # Технологии программирования
+           'nucmed':       nucmed,              # Ядерная медицина
+           'geom':         geom,                # Начертательная геометрия и инженерная графика
+           'engm':         engm,                # Инженерная механика
+           'datainf':      datainf,             # Методы доступа к данным и информационного поиска
+           'personalsafety': personalsafety,    # Личная безопасность
+           'manegemach':   manegemach,          # Управление машиностроительным предприятием
+           'telecom':      telecom,             # Беспроводные телекоммуникационные системы
            }
