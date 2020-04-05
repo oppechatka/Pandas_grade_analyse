@@ -1,15 +1,22 @@
+from os import listdir
 import pandas as pnd
 
-grade_report_df = pnd.read_csv('././grade_reports/ARCHC_spring2020.csv')
+DIRECTORY = './grade_reports/full_grade_name/'
 
-new_list = grade_report_df.columns.tolist()		# Список столбцов
+file_list = listdir(DIRECTORY)
+dict_file = dict()
 
-new_list = new_list[new_list.index('Grade'):new_list.index('Cohort Name') + 1]
+for x in range(len(file_list)):
+	file = file_list[x].split(sep="_")
+	file = file[1:-3]
+	if file[-1] == "net":
+		key_str = '_'.join(file[:-3]) + '_' + ''.join(file[-3:])
+		dict_file[key_str] = file_list[x]
+	else:
+		key_str = '_'.join(file[:-2]) + '_' + ''.join(file[-2:])
+		dict_file[key_str] = file_list[x]
 
-for name in new_list:
-	if ('(Avg)' in name) or ("Grade Percent" in name):
-		new_list.pop(new_list.index(name))
-final_list = ['Email'] + new_list
-print(final_list)
+
+print(dict_file)
 
 # print(new_list.index('Grade'), new_list.index('Cohort Name'))

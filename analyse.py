@@ -6,6 +6,23 @@ REQUESTS_FILES = listdir(gs.REQUESTS_DIRECTORY)
 GRADE_REPORT_FILES = listdir(gs.GRADE_REPORTS_DIRECTORY)
 
 
+def get_report_list(directory: str):
+    file_list = listdir(directory)
+    dict_file = dict()
+
+    for x in range(len(file_list)):
+        file_grade = file_list[x].split(sep="_")
+        file_grade = file_grade[1:-3]
+        if file_grade[-1] == "net":
+            key_str = '_'.join(file_grade[:-3]) + '_' + ''.join(file_grade[-3:])
+            dict_file[key_str] = file_list[x]
+        else:
+            key_str = '_'.join(file_grade[:-2]) + '_' + ''.join(file_grade[-2:])
+            dict_file[key_str] = file_list[x]
+
+    return dict_file
+
+
 def get_columns(list_columns: list):
     new_list = list_columns[list_columns.index('Grade'):list_columns.index('Cohort Name')]
     for name in new_list:
@@ -18,8 +35,9 @@ def get_columns(list_columns: list):
 def get_min_report_settings(request_file: str):
     # print(request_file)   # Проверка какой файл обрабатывается
     crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
-    grade_report_file = crs_request_df.iloc[9, 1] + '.csv'                          # Получаем имя выгрузки
-    grade_settings = "_".join(grade_report_file.split(sep='_')[:-1]).casefold()     # ключ настроек
+    grade_settings = "_".join(crs_request_df.iloc[9, 1].split(sep='_')[:-1]).casefold()  # ключ настроек
+    grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[crs_request_df.iloc[9, 1]]  # файл выгрузки
+
     if grade_report_file not in GRADE_REPORT_FILES:
         print("Нет файла с выгрузкой в папке для " + grade_report_file)
         return 0
@@ -34,8 +52,7 @@ def get_min_report_settings(request_file: str):
 def get_max_report_settings(request_file: str):
     # print(request_file)   # Проверка какой файл обрабатывается
     crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
-    grade_report_file = crs_request_df.iloc[9, 1] + '.csv'                          # Получаем имя выгрузки
-
+    grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[crs_request_df.iloc[9, 1]]  # файл выгрузки
     grade_report_df = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY + '/' + grade_report_file)
     columns_list = get_columns(grade_report_df.columns.tolist())
 
@@ -119,11 +136,11 @@ def get_full_statement(file_name: str):
     print(file_name.rstrip('.xlsx') + "_полная_ведомость.xlsx" + " - OK!")
 
 
-for file in REQUESTS_FILES:
-    get_statement(file)
+# for file in REQUESTS_FILES:
+#     get_statement(file)
 
 # for file in REQUESTS_FILES:
 #     get_full_statement(file)
 
-# get_statement('UrFU_0004.xlsx')
-# get_full_statement('UrFU_0004.xlsx')
+get_statement('UrFU_0002.xlsx')
+# get_full_statement('UrFU_0002.xlsx')
