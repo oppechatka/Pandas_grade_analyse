@@ -1,15 +1,13 @@
-import requests
-import time
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
+USERNAME = ''
+PASSWORD = ''
 
-list_courses = ['ENGM+spring_2020',
-                'ENGM+spring_2020_net',
-                'PROJ+spring_2020',
+list_courses = ['PROJ+spring_2020',
                 'METR+spring_2020',
                 'METR+spring_2020_net',
                 'GEOM+spring_2020',
@@ -80,7 +78,6 @@ list_courses = ['ENGM+spring_2020',
                 'TECO+spring_2020_net',
                 'MANEGEMACH+spring_2020',
                 'EFFSOLUTION+spring_2020',
-                'EFFSOLUTION+spring_2020_net',
                 'NUCMED+spring_2020',
                 'NUCMED+spring_2020_net',
                 'HIST_VIEW+spring_2020_net',
@@ -112,8 +109,8 @@ driver = webdriver.Firefox(profile)
 driver.get(login_url)
 driver.set_window_size(1920, 1015)
 WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located((By.ID, 'id_password')))
-driver.find_element_by_id('id_username').send_keys('openedu_urfu')
-driver.find_element_by_id('id_password').send_keys('15Ch3Ent!@#')
+driver.find_element_by_id('id_username').send_keys(USERNAME)
+driver.find_element_by_id('id_password').send_keys(PASSWORD)
 driver.find_element_by_id('id_password').send_keys(Keys.ENTER)
 WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located((By.CLASS_NAME,
                                                                                     'dropdown-login__text')))
@@ -127,5 +124,6 @@ for course in list_courses:
     WebDriverWait(driver, 30000).until(expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, ".ui-widget-content:nth-child(1) > .slick-cell")))
     driver.find_element(By.CSS_SELECTOR, ".ui-widget-content:nth-child(1) a").click()
     driver.get('https://openedu.ru/')
+    print(course)
 
 driver.close()
