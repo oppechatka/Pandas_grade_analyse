@@ -116,14 +116,15 @@ WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_locat
                                                                                     'dropdown-login__text')))
 
 # Цикл загрузки результатов обучения
+
 for course in list_courses:
     course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(course)
+    print(course)
     driver.get(course_url)
     driver.execute_script("window.scrollTo(0,1200)")
-    WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located((By.CSS_SELECTOR, ".ui-widget-content:nth-child(1) > .slick-cell")))
-    WebDriverWait(driver, 30000).until(expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, ".ui-widget-content:nth-child(1) > .slick-cell")))
-    driver.find_element(By.CSS_SELECTOR, ".ui-widget-content:nth-child(1) a").click()
+    WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located(
+        (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
+    driver.find_element_by_xpath("//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a").click()
     driver.get('https://openedu.ru/')
-    print(course)
 
 driver.close()
