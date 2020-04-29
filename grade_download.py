@@ -4,8 +4,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
-USERNAME = ''
-PASSWORD = ''
+USERNAME = 'openedu_urfu'
+PASSWORD = '15Ch3Ent!@#'
 
 list_courses = ['PROJ+spring_2020',
                 'METR+spring_2020',
@@ -119,12 +119,29 @@ WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_locat
 
 for course in list_courses:
     course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(course)
-    print(course)
     driver.get(course_url)
     driver.execute_script("window.scrollTo(0,1200)")
     WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located(
         (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
-    driver.find_element_by_xpath("//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a").click()
+
+    # Поиск строки, где есть grade report
+
+    n = 1
+    while True:
+        text = driver.find_element_by_xpath(
+            "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[{}]/div/a".format(n)).text
+        if 'grade_report' in text:
+            driver.find_element_by_xpath(
+                "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[{}]/div/a".format(n)).click()
+            print(text + ' - ' + str(n) + ' в списке')
+            break
+        elif n < 10:
+            n += 1
+            continue
+        else:
+            print('Нет выгрузки Grade Report для курса' + course)
+            break
+
     driver.get('https://openedu.ru/')
 
 driver.close()
