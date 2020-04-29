@@ -4,8 +4,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
-USERNAME = 'openedu_urfu'
-PASSWORD = '15Ch3Ent!@#'
+USERNAME = ''
+PASSWORD = ''
 
 list_courses = ['PROJ+spring_2020',
                 'METR+spring_2020',
