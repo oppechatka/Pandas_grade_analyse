@@ -1,6 +1,7 @@
 STATEMENTS_DIRECTORY = './statements'
 REQUESTS_DIRECTORY = './requests'
 GRADE_REPORTS_DIRECTORY = './grade_reports'
+STATISTIC_DIRECTORY = './statistic'
 
 calc = {"Тест (Avg)": 0.001,
         "Рубежный тест (Avg)": 0.005,
@@ -91,7 +92,7 @@ ecos = {"Задание (Avg)": 0.0015,
 lifesafety = {"Тестовое задание (Avg)": 0.004,  # Требует доработки после доабвления экзамена
               "Grade Percent": 1,
               "Columns_for_order": ["Тесты (проходной балл 40)",
-                                    "Итоговый балл (проходной балл 40)"],
+                                    "Итоговый балл"],
               "Columns_for_report": ["Email",
                                      "Тестовое задание (Avg)",
                                      "Grade Percent"]
@@ -242,7 +243,7 @@ edubase = {"Контрольное задание (Avg)": 0.003,
            }
 
 psymedia = {"Кроссворд (Avg)": 0.002,
-            "Контрольное заданние (Avg)": 0.002,
+            "Контрольное задание (Avg)": 0.002,
             "Учебное задание (Avg)": 0.002,
             "Итоговое тестирование (Avg)": 0.004,
             "Grade Percent": 1,
@@ -253,7 +254,7 @@ psymedia = {"Кроссворд (Avg)": 0.002,
                                   "Итоговый балл"],
             "Columns_for_report": ["Email",
                                    "Кроссворд (Avg)",
-                                   "Контрольное заданние (Avg)",
+                                   "Контрольное задание (Avg)",
                                    "Учебное задание (Avg)",
                                    "Итоговое тестирование (Avg)",
                                    "Grade Percent"]
