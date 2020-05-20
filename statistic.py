@@ -44,5 +44,6 @@ for files_name in file_list:
 
 result_df = pnd.DataFrame(dict_data)
 result_df.sort_values(by='№ Заявки', inplace=True)
+print(gs.STATISTIC_DIRECTORY + '/статистика_' + str(datetime.date.today()) + ".xlsx - Ok!")
 result_df.to_excel(gs.STATISTIC_DIRECTORY + '/статистика_' + str(datetime.date.today()) + ".xlsx", index=False)
 
