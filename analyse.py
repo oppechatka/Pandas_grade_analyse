@@ -148,5 +148,5 @@ for file in REQUESTS_FILES:
     get_full_statement(file)
 
 
-# get_statement('UrFU_0088.xlsx')
-# get_full_statement('UrFU_0088.xlsx')
+# get_statement('UrFU_0131_Философия.xlsx')
+# get_full_statement('UrFU_0131_Философия.xlsx')

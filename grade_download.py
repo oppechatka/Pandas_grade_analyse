@@ -1,3 +1,4 @@
+import datetime
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -6,6 +7,67 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 USERNAME = ''
 PASSWORD = ''
+
+
+def count_students(course_name: str, w_driver):
+    course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-course_info'.format(
+        course_name)
+    w_driver.get(course_url)
+    count = w_driver.find_element_by_xpath('//*[@id="course_info"]/div[1]/table/tbody/tr[5]/td/strong').text
+    driver.get('https://openedu.ru/')
+    return course_name + ';' + count + ';' + str(datetime.date.today())
+
+
+def grade_download(course_name: str, w_driver):
+    course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(course_name)
+    w_driver.get(course_url)
+    w_driver.execute_script("window.scrollTo(0,1200)")
+    WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located(
+        (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
+
+    # Поиск строки, где есть grade report
+
+    n = 1
+    while True:
+        text = w_driver.find_element_by_xpath(
+            "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[{}]/div/a".format(n)).text
+        if 'grade_report' in text:
+            w_driver.find_element_by_xpath(
+                "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[{}]/div/a".format(n)).click()
+            print(text + ' - ' + str(n) + ' в списке')
+            break
+        elif n < 10:
+            n += 1
+            continue
+        else:
+            print('Нет выгрузки Grade Report для курса' + course_name)
+            break
+    driver.get('https://openedu.ru/')
+
+
+def grade_order(course_name: str, w_driver):
+    course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(course_name)
+    w_driver.get(course_url)
+    w_driver.execute_script("window.scrollTo(0,1200)")
+    WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located(
+        (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
+    w_driver.find_element_by_css_selector("input.async-report-btn:nth-child(1)").click()
+    WebDriverWait(driver, 30000).until(expected_conditions.visibility_of_element_located(
+        (By.XPATH, '//*[@id="report-request-response"]')))
+    driver.get('https://openedu.ru/')
+
+
+def order_exam_results(course_name: str, w_driver):
+    course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(course_name)
+    w_driver.get(course_url)
+    w_driver.execute_script("window.scrollTo(0,500)")
+    WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located(
+        (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
+    w_driver.find_element_by_css_selector(".reports-download-container > p:nth-child(10) > input:nth-child(1)").click()
+    WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located(
+        (By.XPATH, '//*[@id="report-request-response"]')))
+    driver.get('https://openedu.ru/')
+
 
 list_courses = ['PROJ+spring_2020',
                 'METR+spring_2020',
@@ -120,30 +182,8 @@ WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_locat
 # Цикл загрузки результатов обучения
 
 for course in list_courses:
-    course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(course)
-    driver.get(course_url)
-    driver.execute_script("window.scrollTo(0,1200)")
-    WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located(
-        (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
-
-    # Поиск строки, где есть grade report
-
-    n = 1
-    while True:
-        text = driver.find_element_by_xpath(
-            "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[{}]/div/a".format(n)).text
-        if 'grade_report' in text:
-            driver.find_element_by_xpath(
-                "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[{}]/div/a".format(n)).click()
-            print(text + ' - ' + str(n) + ' в списке')
-            break
-        elif n < 10:
-            n += 1
-            continue
-        else:
-            print('Нет выгрузки Grade Report для курса' + course)
-            break
-
-    driver.get('https://openedu.ru/')
+    # grade_download(course, driver)    # Скачивание grade report
+    grade_order(course, driver)         # Заказ отчета
+    # order_exam_results(course, driver)  # Заказ отчета наблюдаемых испытаний
 
 driver.close()
