@@ -4,9 +4,19 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.common.exceptions import NoSuchElementException
 
-USERNAME = ''
-PASSWORD = ''
+USERNAME = 'openedu_urfu'
+PASSWORD = '15Ch3Ent!@#'
+
+
+def grade_folder(function):
+    def wrapped(arg1, arg2):
+        grade_report_dir = '/home/hinahin/PycharmProjects/Pandas_grade_analyse/grade_reports/'
+        arg2.profile.set_preference(profile.set_preference("browser.download.dir", grade_report_dir))
+        function(arg1, arg2)
+
+    return wrapped
 
 
 def count_students(course_name: str, w_driver):
@@ -18,11 +28,13 @@ def count_students(course_name: str, w_driver):
     return course_name + ';' + count + ';' + str(datetime.date.today())
 
 
+# @grade_folder
 def grade_download(course_name: str, w_driver):
-    course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(course_name)
+    course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(
+        course_name)
     w_driver.get(course_url)
     w_driver.execute_script("window.scrollTo(0,1200)")
-    WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located(
+    WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
         (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
 
     # Поиск строки, где есть grade report
@@ -42,31 +54,66 @@ def grade_download(course_name: str, w_driver):
         else:
             print('Нет выгрузки Grade Report для курса' + course_name)
             break
-    driver.get('https://openedu.ru/')
+    w_driver.get('https://openedu.ru/')
+
+
+def exam_results_download(course_name: str, w_driver):
+    course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(
+        course_name)
+    w_driver.get(course_url)
+    w_driver.execute_script("window.scrollTo(0,1200)")
+    WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
+        (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
+
+    # Поиск строки, где есть grade report
+
+    n = 1
+    while True:
+        text = w_driver.find_element_by_xpath(
+            "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[{}]/div/a".format(n)).text
+        if 'exam_results_report' in text:
+            w_driver.find_element_by_xpath(
+                "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[{}]/div/a".format(n)).click()
+            print(text + ' - ' + str(n) + ' в списке')
+            break
+        elif n < 10:
+            n += 1
+            continue
+        else:
+            print('Нет выгрузки Exam Results для курса' + course_name)
+            break
+    w_driver.get('https://openedu.ru/')
 
 
 def grade_order(course_name: str, w_driver):
-    course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(course_name)
+    course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(
+        course_name)
     w_driver.get(course_url)
     w_driver.execute_script("window.scrollTo(0,1200)")
-    WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located(
+    WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
         (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
     w_driver.find_element_by_css_selector("input.async-report-btn:nth-child(1)").click()
-    WebDriverWait(driver, 30000).until(expected_conditions.visibility_of_element_located(
+    WebDriverWait(w_driver, 30000).until(expected_conditions.visibility_of_element_located(
         (By.XPATH, '//*[@id="report-request-response"]')))
-    driver.get('https://openedu.ru/')
+    w_driver.get('https://openedu.ru/')
 
 
 def order_exam_results(course_name: str, w_driver):
-    course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(course_name)
+    course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(
+        course_name)
     w_driver.get(course_url)
-    w_driver.execute_script("window.scrollTo(0,500)")
-    WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located(
+    w_driver.execute_script("window.scrollTo(0,1200)")
+    WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
         (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
-    w_driver.find_element_by_css_selector(".reports-download-container > p:nth-child(10) > input:nth-child(1)").click()
-    WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located(
-        (By.XPATH, '//*[@id="report-request-response"]')))
-    driver.get('https://openedu.ru/')
+    w_driver.execute_script("window.scrollTo(0,500)")
+    try:
+        w_driver.find_element_by_css_selector(
+            ".reports-download-container > p:nth-child(10) > input:nth-child(1)").click()
+        WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
+            (By.XPATH, '//*[@id="report-request-response"]')))
+    except NoSuchElementException:
+        print("Нет наблюдаемых испытаний на курсе -" + course_name)
+    w_driver.get('https://openedu.ru/')
 
 
 list_courses = ['PROJ+spring_2020',
@@ -155,14 +202,14 @@ list_courses = ['PROJ+spring_2020',
                 'PHILSCI+spring_2020_net',
                 ]
 
-
 # Подготовка и запуск драйвера
 login_url = 'https://sso.openedu.ru/login/'
 
 profile = webdriver.FirefoxProfile()
 # Установка директории для скачивания
 profile.set_preference('browser.download.folderList', 2)
-profile.set_preference("browser.download.dir", '/home/hinahin/PycharmProjects/Pandas_grade_analyse/grade_reports/')
+# profile.set_preference("browser.download.dir", '/home/hinahin/PycharmProjects/Pandas_grade_analyse/grade_reports/')
+profile.set_preference("browser.download.dir", '/home/hinahin/PycharmProjects/Pandas_grade_analyse/exam_results/')
 profile.set_preference('browser.download.manager.showWhenStarting', False)
 profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/csv')
 
@@ -182,8 +229,9 @@ WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_locat
 # Цикл загрузки результатов обучения
 
 for course in list_courses:
-    # grade_download(course, driver)    # Скачивание grade report
-    grade_order(course, driver)         # Заказ отчета
+    # grade_order(course, driver)  # Заказ отчета
     # order_exam_results(course, driver)  # Заказ отчета наблюдаемых испытаний
+    # grade_download(course, driver)      # Скачивание grade report
+    exam_results_download(course, driver)  # Скачивание отчета наблюдаемых испытаний
 
 driver.close()

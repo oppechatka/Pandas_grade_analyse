@@ -75,6 +75,11 @@ def make_grade_column(course_order,             # DataFrame заявки на к
                       ):
     grade_list = []                             # Пустой список с оценками. Добавлется в DataFrame столбцом
     number_of_rows = course_order.shape[0]      # Количество строк в DataFrame заявки на курс
+
+    # lower_possible_mail = [x.lower() for x in possible_mail]
+    # print(possible_mail)
+    # print(lower_possible_mail)
+
     for x in range(number_of_rows):
         email = str(course_order["Адрес электронной почты"][x]).lower()  # Переводим почту в нижний регистр
         if email in possible_mail:
@@ -86,11 +91,13 @@ def make_grade_column(course_order,             # DataFrame заявки на к
                 digit = tst / rate
                 grade_list.append(int(digit.__round__(0)))
         else:
+            print(email)
             grade_list.append("Нет на курсе")
     return grade_list
 
 
 def get_statement(file_name: str):
+    # print(file_name)
     gr_report_file, gr_settings = get_min_report_settings(file_name)              # Получаем ссылки на настройки
 
     course_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file_name, 1)  # DF заявки
@@ -102,9 +109,8 @@ def get_statement(file_name: str):
                                    '/' + gr_report_file, delimiter=',')[
         gr_settings["Columns_for_report"]]                                          # DF выгрузки
 
-    grade_report_df["Email"].str.lower()                                            # переводи все почты в нижний рег
-
-    possible_mail = grade_report_df["Email"].tolist()  # список возможных почт для обработки исключений
+    grade_report_df["Email"] = grade_report_df.Email.str.lower()    # Копируем столбец, переводим в нижний регистр
+    possible_mail = grade_report_df["Email"].tolist()               # список возможных почт для обработки исключений
 
     for x, y in zip(gr_settings["Columns_for_report"][1:], gr_settings["Columns_for_order"]):
         test_list = make_grade_column(course_request_df, grade_report_df, possible_mail, x, gr_settings[x])
@@ -128,9 +134,8 @@ def get_full_statement(file_name: str):
                                    '/' + gr_report_file, delimiter=',')[
         gr_settings["Columns_for_report"]]                                          # DF выгрузки
 
-    grade_report_df["Email"].str.lower()               # переводим все почты в нижний регистр
-
-    possible_mail = grade_report_df["Email"].tolist()  # список возможных почт для обработки исключений
+    grade_report_df["Email"] = grade_report_df.Email.str.lower()    # переводим все почты в нижний регистр
+    possible_mail = grade_report_df["Email"].tolist()           # Делаем список почт для проверки
 
     for x, y in zip(gr_settings["Columns_for_report"][1:], gr_settings["Columns_for_order"][1:]):
         test_list = make_grade_column(course_request_df, grade_report_df, possible_mail, x, 0.01)
@@ -144,9 +149,9 @@ def get_full_statement(file_name: str):
 
 
 for file in REQUESTS_FILES:
-    # get_statement(file)
-    get_full_statement(file)
+    get_statement(file)
+    # get_full_statement(file)
 
 
-# get_statement('UrFU_0131_Философия.xlsx')
-# get_full_statement('UrFU_0131_Философия.xlsx')
+# get_statement('UrFU_0079.xlsx')
+# get_full_statement('UrFU_0079.xlsx')
