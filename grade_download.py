@@ -6,8 +6,8 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
 
-USERNAME = 'openedu_urfu'
-PASSWORD = '15Ch3Ent!@#'
+USERNAME = ''
+PASSWORD = ''
 
 
 def grade_folder(function):
