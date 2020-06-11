@@ -91,7 +91,7 @@ def make_grade_column(course_order,             # DataFrame заявки на к
                 digit = tst / rate
                 grade_list.append(int(digit.__round__(0)))
         else:
-            print(email)
+            # print(email)
             grade_list.append("Нет на курсе")
     return grade_list
 

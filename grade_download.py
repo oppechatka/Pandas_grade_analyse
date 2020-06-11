@@ -231,7 +231,7 @@ WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_locat
 for course in list_courses:
     # grade_order(course, driver)  # Заказ отчета
     # order_exam_results(course, driver)  # Заказ отчета наблюдаемых испытаний
-    # grade_download(course, driver)      # Скачивание grade report
-    exam_results_download(course, driver)  # Скачивание отчета наблюдаемых испытаний
+    grade_download(course, driver)      # Скачивание grade report
+    # exam_results_download(course, driver)  # Скачивание отчета наблюдаемых испытаний
 
 driver.close()
