@@ -208,8 +208,8 @@ login_url = 'https://sso.openedu.ru/login/'
 profile = webdriver.FirefoxProfile()
 # Установка директории для скачивания
 profile.set_preference('browser.download.folderList', 2)
-# profile.set_preference("browser.download.dir", '/home/hinahin/PycharmProjects/Pandas_grade_analyse/grade_reports/')
-profile.set_preference("browser.download.dir", '/home/hinahin/PycharmProjects/Pandas_grade_analyse/exam_results/')
+profile.set_preference("browser.download.dir", '/home/hinahin/PycharmProjects/Pandas_grade_analyse/grade_reports/')
+# profile.set_preference("browser.download.dir", '/home/hinahin/PycharmProjects/Pandas_grade_analyse/exam_results/')
 profile.set_preference('browser.download.manager.showWhenStarting', False)
 profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/csv')
 
