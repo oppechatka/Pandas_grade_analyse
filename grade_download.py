@@ -187,6 +187,7 @@ list_courses = ['ARCHC+fall_2020',
                 'TRIZ+fall_2020',
                 ]
 
+
 # Подготовка и запуск драйвера
 login_url = 'https://sso.openedu.ru/login/'
 
