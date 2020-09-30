@@ -9,8 +9,10 @@ from selenium.common.exceptions import NoSuchElementException
 
 USERNAME = ''
 PASSWORD = ''
-GRADE_REPORTS_DIR = '/home/hinahin/PycharmProjects/Pandas_grade_analyse/grade_reports/' # Нужен полный путь для браузера
-EXAM_RESULTS_DIR = '/home/hinahin/PycharmProjects/Pandas_grade_analyse/exam_results/'   # Нужен полный путь для браузера
+
+# Для настройки браузера нужен полный путь к папкам
+GRADE_REPORTS_DIR = '/home/hinahin/PycharmProjects/Pandas_grade_analyse/grade_reports/'
+EXAM_RESULTS_DIR = '/home/hinahin/PycharmProjects/Pandas_grade_analyse/exam_results/'
 
 
 def count_students(course_name: str, w_driver):
