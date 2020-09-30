@@ -1,3 +1,4 @@
+from loguru import logger
 from os import listdir
 import pandas as pnd
 import grade_settings as gs
