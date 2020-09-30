@@ -9,6 +9,8 @@ from selenium.common.exceptions import NoSuchElementException
 
 USERNAME = ''
 PASSWORD = ''
+GRADE_REPORTS_DIR = '/home/hinahin/PycharmProjects/Pandas_grade_analyse/grade_reports/' # Нужен полный путь для браузера
+EXAM_RESULTS_DIR = '/home/hinahin/PycharmProjects/Pandas_grade_analyse/exam_results/'   # Нужен полный путь для браузера
 
 
 def count_students(course_name: str, w_driver):
@@ -68,7 +70,7 @@ def exam_results_download(course_name: str, w_driver):
     w_driver.get('https://openedu.ru/')
 
 
-def grade_order(course_name: str, w_driver):
+def grade_order(course_name: str, w_driver: webdriver.Firefox):
     course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(
         course_name)
     w_driver.get(course_url)
@@ -178,8 +180,8 @@ login_url = 'https://sso.openedu.ru/login/'
 profile = webdriver.FirefoxProfile()
 # Установка директории для скачивания
 profile.set_preference('browser.download.folderList', 2)
-profile.set_preference("browser.download.dir", '/home/hinahin/PycharmProjects/Pandas_grade_analyse/grade_reports/')
-# profile.set_preference("browser.download.dir", '/home/hinahin/PycharmProjects/Pandas_grade_analyse/exam_results/')
+profile.set_preference("browser.download.dir", GRADE_REPORTS_DIR)
+# profile.set_preference("browser.download.dir", EXAM_RESULTS_DIR)
 profile.set_preference('browser.download.manager.showWhenStarting', False)
 profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/csv')
 
