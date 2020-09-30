@@ -93,8 +93,9 @@ def grade_order(course_name: str, w_driver):
     WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
         (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
     w_driver.find_element_by_css_selector("input.async-report-btn:nth-child(1)").click()
-    WebDriverWait(w_driver, 30000).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, '//*[@id="report-request-response"]')))
+    WebDriverWait(w_driver, 30000).until(lambda x: expected_conditions.visibility_of_element_located(
+         (By.CSS_SELECTOR, "#report-request-response")) or expected_conditions.visibility_of_element_located(
+         (By.CSS_SELECTOR, "#report-request-response-error")))  # Проверка двух условий работает только через lambda
     w_driver.get('https://openedu.ru/')
 
 
@@ -146,7 +147,6 @@ list_courses = ['ARCHC+fall_2020',
                 'INFENG+fall_2020',
                 'INTPR+fall_2020',
                 'INTROBE+fall_2020',
-                'INTROBE+fall_2020_net',
                 'ITS+fall_2020',
                 'LEGAL+fall_2020',
                 'LifeSafety+fall_2020',
