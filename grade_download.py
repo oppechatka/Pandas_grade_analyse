@@ -50,7 +50,7 @@ def exam_results_download(course_name: str, w_driver):
     w_driver.get(course_url)
     w_driver.execute_script("window.scrollTo(0,1200)")
     WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
-        (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
+        (By.CLASS_NAME, "file-download-link")))
 
     # Поиск строки, где есть exam results
     file_list = w_driver.find_elements_by_class_name('file-download-link')
@@ -74,7 +74,7 @@ def grade_order(course_name: str, w_driver):
     w_driver.get(course_url)
     w_driver.execute_script("window.scrollTo(0,1200)")
     WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
-        (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
+        (By.CLASS_NAME, "file-download-link")))
     w_driver.find_element_by_css_selector("input.async-report-btn:nth-child(1)").click()
     WebDriverWait(w_driver, 30000).until(lambda x: expected_conditions.visibility_of_element_located(
          (By.CSS_SELECTOR, "#report-request-response")) or expected_conditions.visibility_of_element_located(
@@ -88,15 +88,16 @@ def order_exam_results(course_name: str, w_driver):
     w_driver.get(course_url)
     w_driver.execute_script("window.scrollTo(0,1200)")
     WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
-        (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
+        (By.CLASS_NAME, "file-download-link")))
     w_driver.execute_script("window.scrollTo(0,500)")
     try:
         w_driver.find_element_by_css_selector(
             ".reports-download-container > p:nth-child(10) > input:nth-child(1)").click()
-        WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
-            (By.XPATH, '//*[@id="report-request-response"]')))
+        WebDriverWait(w_driver, 30000).until(lambda x: expected_conditions.visibility_of_element_located(
+            (By.CSS_SELECTOR, "#report-request-response")) or expected_conditions.visibility_of_element_located(
+            (By.CSS_SELECTOR, "#report-request-response-error")))  # Проверка двух условий работает только через lambda
     except NoSuchElementException:
-        print("Нет наблюдаемых испытаний на курсе -" + course_name)
+        print("Нет наблюдаемых испытаний на курсе - " + course_name)
     w_driver.get('https://openedu.ru/')
 
 
@@ -198,9 +199,9 @@ WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_locat
 # Цикл загрузки результатов обучения
 
 for course in list_courses:
-    # grade_order(course, driver)  # Заказ отчета
+    grade_order(course, driver)  # Заказ отчета
     # order_exam_results(course, driver)  # Заказ отчета наблюдаемых испытаний
-    grade_download(course, driver)      # Скачивание grade report
+    # grade_download(course, driver)      # Скачивание grade report
     # exam_results_download(course, driver)  # Скачивание отчета наблюдаемых испытаний
 
 driver.close()
