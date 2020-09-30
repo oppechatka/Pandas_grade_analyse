@@ -18,7 +18,6 @@ dict_data = {"№ Заявки": [],
              }
 
 
-# noinspection PyTypeChecker
 def get_string(file_name: str):
     # print(file_name)
     course_statement_df = pnd.read_excel('./statements/' + file_name, 0)  # DF отчета

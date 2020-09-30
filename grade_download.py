@@ -11,15 +11,6 @@ USERNAME = ''
 PASSWORD = ''
 
 
-def grade_folder(function):
-    def wrapped(arg1, arg2):
-        grade_report_dir = '/home/hinahin/PycharmProjects/Pandas_grade_analyse/grade_reports/'
-        arg2.profile.set_preference(profile.set_preference("browser.download.dir", grade_report_dir))
-        function(arg1, arg2)
-
-    return wrapped
-
-
 def count_students(course_name: str, w_driver):
     course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-course_info'.format(
         course_name)
@@ -29,32 +20,27 @@ def count_students(course_name: str, w_driver):
     return course_name + ';' + count + ';' + str(datetime.date.today())
 
 
-# @grade_folder
 def grade_download(course_name: str, w_driver):
     course_url = 'https://courses.openedu.ru/courses/course-v1:urfu+{}/instructor#view-data_download'.format(
         course_name)
     w_driver.get(course_url)
     w_driver.execute_script("window.scrollTo(0,1200)")
     WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
-        (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
+        (By.CLASS_NAME, "file-download-link")))
 
     # Поиск строки, где есть grade report
+    file_list = w_driver.find_elements_by_class_name('file-download-link')
+    # logger.info(course_name)
+    flag = 1
+    for i in file_list:
+        if 'grade_report' in i.text:
+            w_driver.find_element_by_link_text(i.text).click()
+            flag -= 1
+            # logger.info(i.text)
+        break
+    if flag == 1:
+        logger.info('Нет выгрузки Grade Report для курса: ' + course_name)
 
-    n = 1
-    while True:
-        text = w_driver.find_element_by_xpath(
-            "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[{}]/div/a".format(n)).text
-        if 'grade_report' in text:
-            w_driver.find_element_by_xpath(
-                "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[{}]/div/a".format(n)).click()
-            print(text + ' - ' + str(n) + ' в списке')
-            break
-        elif n < 10:
-            n += 1
-            continue
-        else:
-            print('Нет выгрузки Grade Report для курса' + course_name)
-            break
     w_driver.get('https://openedu.ru/')
 
 
@@ -66,23 +52,19 @@ def exam_results_download(course_name: str, w_driver):
     WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
         (By.XPATH, "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[1]/div/a")))
 
-    # Поиск строки, где есть grade report
+    # Поиск строки, где есть exam results
+    file_list = w_driver.find_elements_by_class_name('file-download-link')
+    # logger.info(course_name)
+    flag = 1
+    for i in file_list:
+        if 'exam_results_report' in i.text:
+            w_driver.find_element_by_link_text(i.text).click()
+            flag -= 1
+            # logger.info(i.text)
+        break
+    if flag == 1:
+        logger.info('Нет выгрузки Exam Results для курса: ' + course_name)
 
-    n = 1
-    while True:
-        text = w_driver.find_element_by_xpath(
-            "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[{}]/div/a".format(n)).text
-        if 'exam_results_report' in text:
-            w_driver.find_element_by_xpath(
-                "//*[@id=\"report-downloads-table\"]/div/div[5]/div/div[{}]/div/a".format(n)).click()
-            print(text + ' - ' + str(n) + ' в списке')
-            break
-        elif n < 10:
-            n += 1
-            continue
-        else:
-            print('Нет выгрузки Exam Results для курса' + course_name)
-            break
     w_driver.get('https://openedu.ru/')
 
 
@@ -216,9 +198,9 @@ WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_locat
 # Цикл загрузки результатов обучения
 
 for course in list_courses:
-    grade_order(course, driver)  # Заказ отчета
+    # grade_order(course, driver)  # Заказ отчета
     # order_exam_results(course, driver)  # Заказ отчета наблюдаемых испытаний
-    # grade_download(course, driver)      # Скачивание grade report
+    grade_download(course, driver)      # Скачивание grade report
     # exam_results_download(course, driver)  # Скачивание отчета наблюдаемых испытаний
 
 driver.close()
