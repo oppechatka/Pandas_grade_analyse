@@ -33,10 +33,25 @@ def get_columns(list_columns: list):
     return final_list
 
 
-def get_min_report_settings(request_file: str):
-    # print(request_file)   # Проверка какой файл обрабатывается
+def get_nano_report_settings(request_file: str):
     crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
-    grade_settings = "_".join(crs_request_df.iloc[9, 1].split(sep='_')[:-1]).casefold()  # ключ настроек
+    grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[crs_request_df.iloc[9, 1]]  # файл выгрузки
+
+    grade_settings = {'Grade': 0.01,
+                      "Columns_for_order": ['Grade'],
+                      "Columns_for_report": ['Email', 'Grade'],
+                      }
+
+    if grade_report_file not in GRADE_REPORT_FILES:
+        print("Нет файла с выгрузкой в папке для " + grade_report_file)
+        return 0
+    else:
+        return [grade_report_file, grade_settings]
+
+
+def get_min_report_settings(request_file: str):
+    crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
+    grade_settings = "_".join(crs_request_df.iloc[9, 1].split(sep='_')[:-1]).casefold()  # Берем шифр курса
     grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[crs_request_df.iloc[9, 1]]  # файл выгрузки
 
     if grade_report_file not in GRADE_REPORT_FILES:
@@ -51,7 +66,6 @@ def get_min_report_settings(request_file: str):
 
 
 def get_max_report_settings(request_file: str):
-    # print(request_file)   # Проверка какой файл обрабатывается
     crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
     grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[crs_request_df.iloc[9, 1]]  # файл выгрузки
     grade_report_df = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY + '/' + grade_report_file)
@@ -98,7 +112,7 @@ def make_grade_column(course_order,             # DataFrame заявки на к
 
 
 def get_mini_statement(file_name: str):
-    gr_report_file, gr_settings = get_min_report_settings(file_name)              # Получаем ссылки на настройки
+    gr_report_file, gr_settings = get_nano_report_settings(file_name)              # Получаем ссылки на настройки
 
     course_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file_name, 1)  # DF заявки
 
@@ -117,9 +131,9 @@ def get_mini_statement(file_name: str):
         course_request_df[y] = test_list
 
     course_request_df.to_excel(gs.STATEMENTS_DIRECTORY +
-                               '/' + file_name.rstrip('.xlsx') + "_ведомость_" + grade_date + ".xlsx", index=False)
+                               '/' + file_name.rstrip('.xlsx') + "_итоговый балл_" + grade_date + ".xlsx", index=False)
 
-    print(file_name.rstrip('.xlsx') + "_ведомость_" + grade_date + ".xlsx" + " - OK!")
+    print(file_name.rstrip('.xlsx') + "_итоговый балл_" + grade_date + ".xlsx" + " - OK!")
 
 
 def get_statement(file_name: str):
@@ -175,8 +189,8 @@ def get_full_statement(file_name: str):
 
 
 for file in REQUESTS_FILES:
-    # get_mini_statement(file)
-    get_statement(file)
+    get_mini_statement(file)
+    # get_statement(file)
     # get_full_statement(file)
 
 
