@@ -1,5 +1,6 @@
 from loguru import logger
 import datetime
+import time
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -55,7 +56,6 @@ def exam_results_download(course_name: str, w_driver):
     w_driver.execute_script("window.scrollTo(0,1200)")
     WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
         (By.CLASS_NAME, "file-download-link")))
-
     # Поиск строки, где есть exam results
     file_list = w_driver.find_elements_by_class_name('file-download-link')
     # logger.info(course_name)
@@ -79,10 +79,11 @@ def grade_order(course_name: str, w_driver: webdriver.Firefox):
     w_driver.execute_script("window.scrollTo(0,1200)")
     WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
         (By.CLASS_NAME, "file-download-link")))
+    time.sleep(3)
     w_driver.find_element_by_css_selector("input.async-report-btn:nth-child(1)").click()
     WebDriverWait(w_driver, 30000).until(lambda x: expected_conditions.visibility_of_element_located(
-         (By.CSS_SELECTOR, "#report-request-response")) or expected_conditions.visibility_of_element_located(
-         (By.CSS_SELECTOR, "#report-request-response-error")))  # Проверка двух условий работает только через lambda
+        (By.CSS_SELECTOR, "#report-request-response")) or expected_conditions.visibility_of_element_located(
+        (By.CSS_SELECTOR, "#report-request-response-error")))  # Проверка двух условий работает только через lambda
     w_driver.get('https://openedu.ru/')
 
 
@@ -106,6 +107,7 @@ def order_exam_results(course_name: str, w_driver):
 
 
 list_courses = ['ARCHC+fall_2020',
+                'ARCHC+fall_2020_net',
                 'BIOECO+fall_2020',
                 'CALC+fall_2020',
                 'CELLBIO+fall_2020',
@@ -134,6 +136,7 @@ list_courses = ['ARCHC+fall_2020',
                 'Inclus_M2+fall_2020',
                 'INFENG+fall_2020',
                 'INTPR+fall_2020',
+                'INTPR+fall_2020_net',
                 'INTROBE+fall_2020',
                 'ITS+fall_2020',
                 'LEGAL+fall_2020',
@@ -174,7 +177,6 @@ list_courses = ['ARCHC+fall_2020',
                 'TheorVer+fall_2020',
                 'TRIZ+fall_2020',
                 ]
-
 
 # Подготовка и запуск драйвера
 login_url = 'https://sso.openedu.ru/login/'
