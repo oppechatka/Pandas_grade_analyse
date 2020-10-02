@@ -79,8 +79,9 @@ def grade_order(course_name: str, w_driver: webdriver.Firefox):
     w_driver.execute_script("window.scrollTo(0,1200)")
     WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
         (By.CLASS_NAME, "file-download-link")))
-    time.sleep(3)
+    logger.info('Заказан отчет по курсу: ' + course_name)
     w_driver.find_element_by_css_selector("input.async-report-btn:nth-child(1)").click()
+    logger.info('Заказан отчет по курсу: ' + course_name)
     WebDriverWait(w_driver, 30000).until(lambda x: expected_conditions.visibility_of_element_located(
         (By.CSS_SELECTOR, "#report-request-response")) or expected_conditions.visibility_of_element_located(
         (By.CSS_SELECTOR, "#report-request-response-error")))  # Проверка двух условий работает только через lambda

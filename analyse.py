@@ -38,7 +38,7 @@ def get_nano_report_settings(request_file: str):
     grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[crs_request_df.iloc[9, 1]]  # файл выгрузки
 
     grade_settings = {'Grade': 0.01,
-                      "Columns_for_order": ['Grade'],
+                      "Columns_for_order": ['Итоговый балл'],
                       "Columns_for_report": ['Email', 'Grade'],
                       }
 
