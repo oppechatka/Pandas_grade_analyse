@@ -1,6 +1,5 @@
 from loguru import logger
 import datetime
-import time
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -115,6 +114,7 @@ list_courses = ['ARCHC+fall_2020',
                 'chryso+fall_2020',
                 'Crithink+fall_2020',
                 'CSHARP+fall_2020',
+                'CSHARP+fall_2020_net',
                 'DATAINF+fall_2020',
                 'DesignBasics+fall_2020',
                 'ECOEFF+fall_2020',
@@ -131,6 +131,7 @@ list_courses = ['ARCHC+fall_2020',
                 'GEOM+fall_2020_net',
                 'GOVBUSINESS+fall_2020',
                 'HIST_VIEW+fall_2020',
+                'HIST_VIEW+fall_2020_net',
                 'HIST+fall_2020',
                 'Inclus_M1+fall_2020',
                 'Inclus_M2+fall_2020',
@@ -158,6 +159,7 @@ list_courses = ['ARCHC+fall_2020',
                 'PHILSCI+fall_2020_net',
                 'PhysCult+fall_2020',
                 'PRGRMM+fall_2020',
+                'PRGRMM+fall_2020_net',
                 'PROJ+fall_2020',
                 'PSYMEDIA+fall_2020',
                 'PSYMEDIA+fall_2020_net',
@@ -170,9 +172,11 @@ list_courses = ['ARCHC+fall_2020',
                 'SMNGM+fall_2020_net',
                 'SoftSkills+fall_2020',
                 'SYSTENG+fall_2020',
+                'SYSTENG+fall_2020_net',
                 'TECO+fall_2020',
                 'TECO+fall_2020_net',
                 'TELECOM+fall_2020',
+                'TELECOM+fall_2020_net',
                 'TEPL+fall_2020',
                 'TheorVer+fall_2020',
                 'TRIZ+fall_2020',
@@ -205,9 +209,9 @@ WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_locat
 # Цикл загрузки результатов обучения
 
 for course in list_courses:
-    grade_order(course, driver)  # Заказ отчета
+    # grade_order(course, driver)  # Заказ отчета
     # order_exam_results(course, driver)  # Заказ отчета наблюдаемых испытаний
-    # grade_download(course, driver)      # Скачивание grade report
+    grade_download(course, driver)      # Скачивание grade report
     # exam_results_download(course, driver)  # Скачивание отчета наблюдаемых испытаний
 
 driver.close()
