@@ -8,6 +8,14 @@ GRADE_REPORT_FILES = listdir(gs.GRADE_REPORTS_DIRECTORY)
 
 
 def get_report_list(directory: str):
+    """
+    Функция получает на входе строкой директорию, где находятся файлы с отчетами Grade Report, пробегает по всем файлам
+    и формирует словарь в виде - {шифр курса: "имя файла отчета"}
+    Работает только с openedu.ru
+    :param directory: string - путь к директории
+    :return: dict_file - словарь, где ключом является шифр курса (прим. ecos_fall2020net ) а в качестве значения
+    полное имя файла с отчетом
+    """
     file_list = listdir(directory)
     dict_file = dict()
 
@@ -20,7 +28,6 @@ def get_report_list(directory: str):
         else:
             key_str = '_'.join(file_grade[:-2]) + '_' + ''.join(file_grade[-2:])
             dict_file[key_str] = file_list[x]
-
     return dict_file
 
 
