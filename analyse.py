@@ -12,8 +12,9 @@ def get_report_list(directory: str):
     Функция получает на входе строкой директорию, где находятся файлы с отчетами Grade Report, пробегает по всем файлам
     и формирует словарь в виде - {шифр курса: "имя файла отчета"}
     Работает только с openedu.ru
-    :param directory: string - путь к директории
-    :return: dict_file - словарь, где ключом является шифр курса (прим. ecos_fall2020net ) а в качестве значения
+
+    :param directory: путь к директории
+    :return: Cловарь, где ключом является шифр курса (прим. ecos_fall2020net ) а в качестве значения
     полное имя файла с отчетом
     """
     file_list = listdir(directory)
@@ -32,6 +33,15 @@ def get_report_list(directory: str):
 
 
 def get_columns(list_columns: list):
+    """
+    Функция получает на вход список всех столбцов в файле отчета Grade Report и сохраняет в новый список
+    столбцы с оценками от столбца "Grade" до "Cohort Name"(не включительно). Из списка также исключаются столбцы
+    со средними значениями по блокам (Avg) и столбец Grade Percent, который является дублирующим значением
+    столбца Grade, умноженный на 100.
+
+    :param list_columns: список всех столбцов в файле отчета Grade Report. Тип - List
+    :return: список столбцов всех заданий на курсе, без Avg и Grade Percent
+    """
     new_list = list_columns[list_columns.index('Grade'):list_columns.index('Cohort Name')]
     for name in new_list:
         if ('(Avg)' in name) or ("Grade Percent" in name):
@@ -40,23 +50,38 @@ def get_columns(list_columns: list):
     return final_list
 
 
-def get_nano_report_settings(request_file: str):
+def get_grade_report_file(request_file: str):
+    """
+    Функция получает на входе имя файла-запроса из папки Requests, на первом листе файла обращается к ячейке
+    с шифром курса, и возвращает соответствующий ему файл отчета Grade Report в одноименной папке
+
+    :param request_file: имя файла запроса из папки Requests
+    :return: имя файла отчета Grade Report из которого будут браться оценки для ведомости
+    """
     crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
     grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[crs_request_df.iloc[9, 1]]  # файл выгрузки
+    return grade_report_file
 
+
+def get_mini_report_settings():
+    """
+    Функция без аргументов на входе.
+
+    Возвращает упрощенный словарь настроек для получения ведомости только
+    с итоговым баллом по курсу. Подходит для любого онлайн-курса на openedu.ru и openedu.urfu.ru
+
+    TODO: Стоит перенести в grade_settings.py как константу.
+
+    :return: упрощенный словарь с настройками. Только поле Grade
+    """
     grade_settings = {'Grade': 0.01,
                       "Columns_for_order": ['Итоговый балл'],
                       "Columns_for_report": ['Email', 'Grade'],
                       }
-
-    if grade_report_file not in GRADE_REPORT_FILES:
-        print("Нет файла с выгрузкой в папке для " + grade_report_file)
-        return 0
-    else:
-        return [grade_report_file, grade_settings]
+    return grade_settings
 
 
-def get_min_report_settings(request_file: str):
+def get_middle_report_settings(request_file: str):
     crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
     grade_settings = "_".join(crs_request_df.iloc[9, 1].split(sep='_')[:-1]).casefold()  # Берем шифр курса
     grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[crs_request_df.iloc[9, 1]]  # файл выгрузки
@@ -98,10 +123,6 @@ def make_grade_column(course_order,             # DataFrame заявки на к
     grade_list = []                             # Пустой список с оценками. Добавлется в DataFrame столбцом
     number_of_rows = course_order.shape[0]      # Количество строк в DataFrame заявки на курс
 
-    # lower_possible_mail = [x.lower() for x in possible_mail]
-    # print(possible_mail)
-    # print(lower_possible_mail)
-
     for x in range(number_of_rows):
         email = str(course_order["Адрес электронной почты"][x]).lower()  # Переводим почту в нижний регистр
         if email in possible_mail:
@@ -113,13 +134,13 @@ def make_grade_column(course_order,             # DataFrame заявки на к
                 digit = tst / rate
                 grade_list.append(int(digit.__round__(0)))
         else:
-            # print(email)
             grade_list.append("Нет на курсе")
     return grade_list
 
 
 def get_mini_statement(file_name: str):
-    gr_report_file, gr_settings = get_nano_report_settings(file_name)              # Получаем ссылки на настройки
+    gr_report_file = get_grade_report_file(file_name)   # Получаем имя файла отчета, откуда берем оценки
+    gr_settings = get_mini_report_settings()            # Получаем словарь упрощенных настроек
 
     course_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file_name, 1)  # DF заявки
 
@@ -145,7 +166,7 @@ def get_mini_statement(file_name: str):
 
 def get_statement(file_name: str):
     # print(file_name)
-    gr_report_file, gr_settings = get_min_report_settings(file_name)              # Получаем ссылки на настройки
+    gr_report_file, gr_settings = get_middle_report_settings(file_name)              # Получаем ссылки на настройки
 
     course_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file_name, 1)  # DF заявки
 
@@ -196,8 +217,8 @@ def get_full_statement(file_name: str):
 
 
 for file in REQUESTS_FILES:
-    # get_mini_statement(file)
-    get_statement(file)
+    get_mini_statement(file)
+    # get_statement(file)
     # get_full_statement(file)
 
 

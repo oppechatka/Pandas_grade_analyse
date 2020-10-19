@@ -41,7 +41,7 @@ def grade_download(course_name: str, w_driver):
             w_driver.find_element_by_link_text(i.text).click()
             flag -= 1
             # logger.info(i.text)
-        break
+            break
     if flag == 1:
         logger.info('Нет выгрузки Grade Report для курса: ' + course_name)
 
@@ -64,7 +64,7 @@ def exam_results_download(course_name: str, w_driver):
             w_driver.find_element_by_link_text(i.text).click()
             flag -= 1
             # logger.info(i.text)
-        break
+            break
     if flag == 1:
         logger.info('Нет выгрузки Exam Results для курса: ' + course_name)
 
