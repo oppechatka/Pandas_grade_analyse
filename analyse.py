@@ -1,4 +1,5 @@
 from loguru import logger
+from datetime import date
 from os import listdir
 import pandas as pnd
 import grade_settings as gs
@@ -58,60 +59,69 @@ def get_grade_report_file(request_file: str):
     :param request_file: имя файла запроса из папки Requests
     :return: имя файла отчета Grade Report из которого будут браться оценки для ведомости
     """
-    crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
-    grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[crs_request_df.iloc[9, 1]]  # файл выгрузки
-    return grade_report_file
-
-
-def get_mini_report_settings():
-    """
-    Функция без аргументов на входе.
-
-    Возвращает упрощенный словарь настроек для получения ведомости только
-    с итоговым баллом по курсу. Подходит для любого онлайн-курса на openedu.ru и openedu.urfu.ru
-
-    TODO: Стоит перенести в grade_settings.py как константу.
-
-    :return: упрощенный словарь с настройками. Только поле Grade
-    """
-    grade_settings = {'Grade': 0.01,
-                      "Columns_for_order": ['Итоговый балл'],
-                      "Columns_for_report": ['Email', 'Grade'],
-                      }
-    return grade_settings
-
-
-def get_middle_report_settings(request_file: str):
-    crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
-    grade_settings = "_".join(crs_request_df.iloc[9, 1].split(sep='_')[:-1]).casefold()  # Берем шифр курса
-    grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[crs_request_df.iloc[9, 1]]  # файл выгрузки
-
-    if grade_report_file not in GRADE_REPORT_FILES:
-        print("Нет файла с выгрузкой в папке для " + grade_report_file)
-        return 0
-    elif grade_settings not in gs.courses:
-        print("Нет словаря с настройками для курса для " + grade_settings)
+    try:
+        crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
+    except FileNotFoundError:
+        logger.error(f'Отсутствует файл {request_file} в папке requests')
+        return -1
+    try:
+        grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[crs_request_df.iloc[9, 1]]  # файл выгрузки
+    except KeyError:
+        logger.error(f'Нет файла Grade_Report для запроса {crs_request_df.iloc[9, 1]}')
         return 0
     else:
-        grade_settings = gs.courses[grade_settings]
-        return [grade_report_file, grade_settings]
+        return grade_report_file
 
 
-def get_max_report_settings(request_file: str):
-    crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
-    grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[crs_request_df.iloc[9, 1]]  # файл выгрузки
-    grade_report_df = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY + '/' + grade_report_file)
-    columns_list = get_columns(grade_report_df.columns.tolist())
+def get_report_settings(request_file: str, statement_type='mini'):
+    """
+    Функция принимает на входе имя файла запроса и тип отчета, для которого нужны настройки.
 
-    grade_settings = {"Columns_for_order": list(columns_list),
-                      "Columns_for_report": list(columns_list),
-                      }
+    Типы отчетов: mini, middle, full. По-умолчанию mini
 
-    if grade_report_file not in GRADE_REPORT_FILES:
-        print("Нет файла с выгрузкой в папке для " + grade_report_file)
-        return 0
+    Возвращает словарь настроек по курсу в зависимости от получаемого отчета.
+    Подходит для любого онлайн-курса на openedu.ru и openedu.urfu.ru
+
+    :param request_file: Строка. Имя файла запроса из папки Requests.
+    :param statement_type: Строка. Тип отчета. Существует три типа: mini | middle | full
+    :return: словарь с настройками для генерации отчета.
+    """
+    # Настройки для отчета mini
+    if statement_type == 'mini':
+        grade_settings = {'Grade': 0.01,
+                          "Columns_for_order": ['Итоговый балл'],
+                          "Columns_for_report": ['Email', 'Grade'],
+                          }
+        return grade_settings           # Настройки для mini отчета. Только столбец grade.
+
+    # Настройки для отчета middle
+    elif statement_type == 'middle':
+        crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
+        grade_cipher = "_".join(crs_request_df.iloc[9, 1].split(sep='_')[:-1]).casefold()  # Берем шифр курса
+        try:
+            grade_settings = gs.courses[grade_cipher]
+        except KeyError:
+            logger.error(f'Нет словаря с настройками для курса {grade_cipher.upper()} в grade_settings.py')
+            return 0    # обработка отсутствия словаря с настройками
+        else:
+            return grade_settings
+
+    # Настройки для отчета full
+    elif statement_type == 'full':
+        crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
+        grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[crs_request_df.iloc[9, 1]]  # файл выгрузки
+        grade_report_df = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY + '/' + grade_report_file)    # DF файла выгрузки
+        columns_list = get_columns(grade_report_df.columns.tolist())    # получаем список всех столбцов с оценками
+
+        grade_settings = {"Columns_for_order": list(columns_list),      # создаем словарь настроек для всех столбцов
+                          "Columns_for_report": list(columns_list),
+                          }
+
+        return grade_settings
+
     else:
-        return [grade_report_file, grade_settings]
+        logger.error(f'Выбранный тип отчета - {statement_type} - не существует')
+        return 0
 
 
 def make_grade_column(course_order,             # DataFrame заявки на курс
@@ -132,20 +142,34 @@ def make_grade_column(course_order,             # DataFrame заявки на к
             else:
                 tst = float(grade_report[grade_report["Email"] == email][col_name].iloc[0])
                 digit = tst / rate
-                grade_list.append(int(digit.__round__(0)))
+                grade_list.append(int(digit.__round__(0)))      # Округляем до целого значения
         else:
             grade_list.append("Нет на курсе")
     return grade_list
 
 
 def get_mini_statement(file_name: str):
-    gr_report_file = get_grade_report_file(file_name)   # Получаем имя файла отчета, откуда берем оценки
-    gr_settings = get_mini_report_settings()            # Получаем словарь упрощенных настроек
 
-    course_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file_name, 1)  # DF заявки
+    gr_report_file = get_grade_report_file(file_name)       # Получаем имя файла отчета, откуда берем оценки
+    if gr_report_file == -1:
+        return 0                                            # Обработка ошибки отсутствия файла-запроса в requests
+    elif gr_report_file == 0:
+        return 0                                            # Обработка ошибки отсутствия файла grade report
 
-    grade_date_list = gr_report_file.split(sep='_')[-1].split(sep='-')[2::-1]
+    gr_settings = get_report_settings(file_name, statement_type='mini')     # Получаем словарь упрощенных настроек
+    try:
+        course_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file_name, 1)  # DF заявки
+    except KeyError:
+        logger.error(f'Файл с именем {file_name} в папке requests не найден.')
+        return 0
+
+    grade_date_list = gr_report_file.split(sep='_')[-1].split(sep='-')[2::-1]       # получаем дату отчета из файла
     grade_date = '.'.join(grade_date_list)                                          # дата выгрузки Grade Report
+    tday = str(date.today().strftime('%d.%m.%Y'))       # сегодняшняя дата
+
+    if tday != grade_date:
+        logger.warning(f'Дата отчета Grade_Report для курса {"_".join(gr_report_file.split(sep="_")[:-3])}'
+                       f' не является актуальной')      # Предупреждение если дата не актуальная
 
     grade_report_df = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY +
                                    '/' + gr_report_file, delimiter=',')[
@@ -161,17 +185,27 @@ def get_mini_statement(file_name: str):
     course_request_df.to_excel(gs.STATEMENTS_DIRECTORY +
                                '/' + file_name.rstrip('.xlsx') + "_итоговый балл_" + grade_date + ".xlsx", index=False)
 
-    print(file_name.rstrip('.xlsx') + "_итоговый балл_" + grade_date + ".xlsx" + " - OK!")
+    logger.info(file_name.rstrip('.xlsx') + "_итоговый балл_" + grade_date + ".xlsx" + " - OK!")
 
 
 def get_statement(file_name: str):
-    # print(file_name)
-    gr_report_file, gr_settings = get_middle_report_settings(file_name)              # Получаем ссылки на настройки
+    if get_grade_report_file(file_name) == 0:
+        return 0                                            # Обработка ошибки отсутствия файла grade report
+    else:
+        gr_report_file = get_grade_report_file(file_name)   # Получаем имя файла отчета, откуда берем оценки
 
+    gr_settings = get_report_settings(file_name, statement_type='middle')           # Получаем ссылки на настройки
+    if gr_settings == 0:
+        return 0                                                                    # Обработка отсутствия словаря
     course_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file_name, 1)  # DF заявки
 
     grade_date_list = gr_report_file.split(sep='_')[-1].split(sep='-')[2::-1]
     grade_date = '.'.join(grade_date_list)                                          # дата выгрузки Grade Report
+    tday = str(date.today().strftime('%d.%m.%Y'))  # сегодняшняя дата
+
+    if tday != grade_date:
+        logger.warning(f'Дата отчета Grade_Report для курса {"_".join(gr_report_file.split(sep="_")[:-3])}'
+                       f' не является актуальной')  # Предупреждение если дата не актуальная
 
     grade_report_df = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY +
                                    '/' + gr_report_file, delimiter=',')[
@@ -186,17 +220,26 @@ def get_statement(file_name: str):
 
     course_request_df.to_excel(gs.STATEMENTS_DIRECTORY +
                                '/' + file_name.rstrip('.xlsx') + "_ведомость_" + grade_date + ".xlsx", index=False)
-
-    print(file_name.rstrip('.xlsx') + "_ведомость_" + grade_date + ".xlsx" + " - OK!")
+    logger.info(file_name.rstrip('.xlsx') + "_ведомость_" + grade_date + ".xlsx" + " - OK!")
 
 
 def get_full_statement(file_name: str):
-    gr_report_file, gr_settings = get_max_report_settings(file_name)                # Получаем ссылки на настройки
+    if get_grade_report_file(file_name) == 0:
+        return 0                                            # Обработка ошибки отсутствия файла grade report
+    else:
+        gr_report_file = get_grade_report_file(file_name)   # Получаем имя файла отчета, откуда берем оценки
+
+    gr_settings = get_report_settings(file_name, statement_type='full')             # Получаем ссылки на настройки
 
     course_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file_name, 1)  # DF заявки
 
     grade_date_list = gr_report_file.split(sep='_')[-1].split(sep='-')[2::-1]
     grade_date = '.'.join(grade_date_list)                                          # дата выгрузки Grade Report
+    tday = str(date.today().strftime('%d.%m.%Y'))  # сегодняшняя дата
+
+    if tday != grade_date:
+        logger.warning(f'Дата отчета Grade_Report для курса {"_".join(gr_report_file.split(sep="_")[:-3])}'
+                       f' не является актуальной')  # Предупреждение если дата не актуальная
 
     grade_report_df = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY +
                                    '/' + gr_report_file, delimiter=',')[
@@ -212,15 +255,15 @@ def get_full_statement(file_name: str):
     course_request_df.to_excel(gs.STATEMENTS_DIRECTORY +
                                '/' + file_name.rstrip('.xlsx') + "_полная_ведомость_" + grade_date + ".xlsx",
                                index=False)
-
-    print(file_name.rstrip('.xlsx') + "_полная_ведомость_" + grade_date + ".xlsx" + " - OK!")
+    logger.info(file_name.rstrip('.xlsx') + "_полная_ведомость_" + grade_date + ".xlsx" + " - OK!")
 
 
 for file in REQUESTS_FILES:
-    get_mini_statement(file)
-    # get_statement(file)
+    # get_mini_statement(file)
+    get_statement(file)
     # get_full_statement(file)
 
 
+# get_mini_statement('UrFU_0079.xlsx')
 # get_statement('UrFU_0079.xlsx')
 # get_full_statement('UrFU_0079.xlsx')
