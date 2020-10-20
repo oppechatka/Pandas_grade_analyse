@@ -121,7 +121,7 @@ def get_report_settings(request_file: str, statement_type='mini'):
 
     else:
         logger.error(f'Выбранный тип отчета - {statement_type} - не существует')
-        return 0
+        return -1
 
 
 def make_grade_column(course_order,             # DataFrame заявки на курс
@@ -157,15 +157,11 @@ def get_mini_statement(file_name: str):
         return 0                                            # Обработка ошибки отсутствия файла grade report
 
     gr_settings = get_report_settings(file_name, statement_type='mini')     # Получаем словарь упрощенных настроек
-    try:
-        course_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file_name, 1)  # DF заявки
-    except KeyError:
-        logger.error(f'Файл с именем {file_name} в папке requests не найден.')
-        return 0
+    course_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file_name, 1)  # DF заявки
 
     grade_date_list = gr_report_file.split(sep='_')[-1].split(sep='-')[2::-1]       # получаем дату отчета из файла
     grade_date = '.'.join(grade_date_list)                                          # дата выгрузки Grade Report
-    tday = str(date.today().strftime('%d.%m.%Y'))       # сегодняшняя дата
+    tday = str(date.today().strftime('%d.%m.%Y'))                                   # сегодняшняя дата
 
     if tday != grade_date:
         logger.warning(f'Дата отчета Grade_Report для курса {"_".join(gr_report_file.split(sep="_")[:-3])}'
@@ -189,10 +185,11 @@ def get_mini_statement(file_name: str):
 
 
 def get_statement(file_name: str):
-    if get_grade_report_file(file_name) == 0:
+    gr_report_file = get_grade_report_file(file_name)       # Получаем имя файла отчета, откуда берем оценки
+    if gr_report_file == -1:
+        return 0                                            # Обработка ошибки отсутствия файла-запроса в requests
+    elif gr_report_file == 0:
         return 0                                            # Обработка ошибки отсутствия файла grade report
-    else:
-        gr_report_file = get_grade_report_file(file_name)   # Получаем имя файла отчета, откуда берем оценки
 
     gr_settings = get_report_settings(file_name, statement_type='middle')           # Получаем ссылки на настройки
     if gr_settings == 0:
@@ -224,10 +221,11 @@ def get_statement(file_name: str):
 
 
 def get_full_statement(file_name: str):
-    if get_grade_report_file(file_name) == 0:
+    gr_report_file = get_grade_report_file(file_name)       # Получаем имя файла отчета, откуда берем оценки
+    if gr_report_file == -1:
+        return 0                                            # Обработка ошибки отсутствия файла-запроса в requests
+    elif gr_report_file == 0:
         return 0                                            # Обработка ошибки отсутствия файла grade report
-    else:
-        gr_report_file = get_grade_report_file(file_name)   # Получаем имя файла отчета, откуда берем оценки
 
     gr_settings = get_report_settings(file_name, statement_type='full')             # Получаем ссылки на настройки
 

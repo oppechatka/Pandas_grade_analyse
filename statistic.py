@@ -19,7 +19,7 @@ dict_data = {"№ Заявки": [],
 
 
 def get_string(file_name: str):
-    # print(file_name)
+    logger.info(file_name)
     course_statement_df = pnd.read_excel('./statements/' + file_name, 0)  # DF отчета
 
     dict_data["№ Заявки"].append(course_statement_df["№ Заявки"][0])
@@ -46,4 +46,3 @@ result_df = pnd.DataFrame(dict_data)
 result_df.sort_values(by='№ Заявки', inplace=True)
 print(gs.STATISTIC_DIRECTORY + '/статистика_' + str(datetime.date.today()) + ".xlsx - Ok!")
 result_df.to_excel(gs.STATISTIC_DIRECTORY + '/статистика_' + str(datetime.date.today()) + ".xlsx", index=False)
-
