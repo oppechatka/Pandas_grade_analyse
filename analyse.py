@@ -4,9 +4,6 @@ from os import listdir
 import pandas as pnd
 import grade_settings as gs
 
-REQUESTS_FILES = listdir(gs.REQUESTS_DIRECTORY)
-GRADE_REPORT_FILES = listdir(gs.GRADE_REPORTS_DIRECTORY)
-
 
 def get_report_list(directory: str):
     """
@@ -247,7 +244,7 @@ def get_statement(file_name: str, statement_type: str):
 
 
 if __name__ == "__main__":
-    for file in REQUESTS_FILES:
+    for file in gs.REQUESTS_FILES:
         if '.~' in file:         # игнорируем временные файлы, которые создаются при открытии
             continue             # необходимо проверить префикс в Windows
         else:

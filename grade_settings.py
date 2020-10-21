@@ -1,3 +1,5 @@
+from os import listdir
+
 STATEMENTS_DIRECTORY = './statements'
 REQUESTS_DIRECTORY = './requests'
 GRADE_REPORTS_DIRECTORY = './grade_reports'
@@ -5,6 +7,8 @@ STATISTIC_DIRECTORY = './statistic'
 
 GRADE_REPORTS_DIR = '/home/hinahin/PycharmProjects/Pandas_grade_analyse/grade_reports/'
 EXAM_RESULTS_DIR = '/home/hinahin/PycharmProjects/Pandas_grade_analyse/exam_results/'
+
+REQUESTS_FILES = listdir(REQUESTS_DIRECTORY)
 
 USERNAME = ''
 PASSWORD = ''
