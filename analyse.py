@@ -247,9 +247,9 @@ def get_statement(file_name: str, statement_type: str):
 
 
 if __name__ == "__main__":
-    for file in REQUESTS_FILES:  # цикл обработки. Для выбора типа отчета выставляем его тип:
-        if '.~' in file:  # игнорируем временные файлы, которые создаются при открытии
-            continue  # необходимо проверить префикс в Windows
+    for file in REQUESTS_FILES:
+        if '.~' in file:         # игнорируем временные файлы, которые создаются при открытии
+            continue             # необходимо проверить префикс в Windows
         else:
             get_statement(file, 'middle')  # statement_type= mini|middle|full
 
