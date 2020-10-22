@@ -7,6 +7,7 @@ STATISTIC_DIRECTORY = './statistic'
 
 GRADE_REPORTS_DIR = '/home/hinahin/PycharmProjects/Pandas_grade_analyse/grade_reports/'
 EXAM_RESULTS_DIR = '/home/hinahin/PycharmProjects/Pandas_grade_analyse/exam_results/'
+DEFAULT_DOWNLOAD_DIR = '/home/hinahin/'
 
 REQUESTS_FILES = listdir(REQUESTS_DIRECTORY)
 

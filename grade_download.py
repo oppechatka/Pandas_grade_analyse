@@ -183,7 +183,7 @@ def make_web_driver(type_driver: str = 'none'):
     elif type_driver == 'exam_results':
         profile.set_preference("browser.download.dir", GS.EXAM_RESULTS_DIR)
     else:
-        profile.set_preference("browser.download.dir", '/home/hinahin/')
+        profile.set_preference("browser.download.dir", GS.DEFAULT_DOWNLOAD_DIR)
 
     profile.set_preference('browser.download.manager.showWhenStarting', False)
     profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/csv')
