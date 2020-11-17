@@ -4,6 +4,7 @@ STATEMENTS_DIRECTORY = './statements'
 REQUESTS_DIRECTORY = './requests'
 GRADE_REPORTS_DIRECTORY = './grade_reports'
 STATISTIC_DIRECTORY = './statistic'
+EXAM_RESULTS_DIRECTORY = './exam_results'
 
 GRADE_REPORTS_DIR = '/home/hinahin/PycharmProjects/Pandas_grade_analyse/grade_reports/'
 EXAM_RESULTS_DIR = '/home/hinahin/PycharmProjects/Pandas_grade_analyse/exam_results/'
