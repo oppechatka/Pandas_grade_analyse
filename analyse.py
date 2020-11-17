@@ -5,7 +5,7 @@ import pandas as pnd
 import grade_settings as gs
 
 
-def get_report_list(directory: str):
+def get_report_list(directory: str, report_type='grade'):
     """
     Функция получает на входе строкой директорию, где находятся файлы с отчетами Grade Report, пробегает по всем файлам
     и формирует словарь в виде:
@@ -14,15 +14,20 @@ def get_report_list(directory: str):
 
     Работает только с openedu.ru
 
+    :param report_type: тип отчета для которого составляем список "grade|exam". По умолчанию 'grade'
     :param directory: путь к директории
     :return: Cловарь, где ключом является шифр курса (прим. ecos_fall2020net ), значение полное имя файла с отчетом
     """
     file_list = listdir(directory)
     dict_file = dict()
+    x_end = -3                  # Делаем срез для названия в отчете Grade Report
+
+    if report_type == 'exam':
+        x_end = -5              # Делаем срез для названия в отчете Exam Results
 
     for x in range(len(file_list)):
         file_grade = file_list[x].split(sep="_")
-        file_grade = file_grade[1:-3]
+        file_grade = file_grade[1:x_end]
         if file_grade[-1] == "net":
             key_str = '_'.join(file_grade[:-3]) + '_' + ''.join(file_grade[-3:])
             dict_file[key_str] = file_list[x]
@@ -243,11 +248,33 @@ def get_statement(file_name: str, statement_type: str):
     logger.info(f'{file_name.rstrip(".xlsx")}_{statement_type}_{grade_date}.xlsx - OK!')
 
 
+def get_exam_names(filename: str):
+    df_exam_result = pnd.read_csv(gs.EXAM_RESULTS_DIRECTORY + '/' + filename)
+    exam_set = set(df_exam_result['exam_name'])
+    return list(exam_set)
+
+
 if __name__ == "__main__":
-    for file in gs.REQUESTS_FILES:
-        if '.~' in file:         # игнорируем временные файлы, которые создаются при открытии
-            continue             # необходимо проверить префикс в Windows
-        else:
-            get_statement(file, 'middle')  # statement_type= mini|middle|full
+    # for file in gs.REQUESTS_FILES:
+    #     if '.~' in file:         # игнорируем временные файлы, которые создаются при открытии
+    #         continue             # необходимо проверить префикс в Windows
+    #     else:
+    #         get_statement(file, 'middle')  # statement_type= mini|middle|full
 
     # get_statement('UrFU_0079.xlsx', statement_type='middle')  # Заказ конкретного отчета
+    exam_list = (get_exam_names('urfu_SMNGM_fall_2020_net_proctored_exam_results_report_2020-11-16-2001.csv'))
+    exam_list.append('exam2')
+    new_settings = dict.copy(gs.bioeco)
+
+    a = new_settings['Columns_for_report'].pop(-2)
+    new_settings['Columns_for_order'].pop(-2)
+    new_settings.__delitem__(a)
+
+    for _ in exam_list:
+        new_settings['Columns_for_report'].insert(-1, _)
+        new_settings['Columns_for_order'].insert(-1, _)
+        new_settings[_] = 0.01
+
+    print(new_settings)
+    print(a)
+
