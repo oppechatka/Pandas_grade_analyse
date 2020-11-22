@@ -77,6 +77,28 @@ def get_grade_report_file(request_file: str):
         return grade_report_file
 
 
+def get_exam_results_file(request_file: str):
+    """
+    Функция получает на входе имя файла-запроса из папки Requests, на первом листе файла обращается к ячейке
+    с шифром курса, и возвращает соответствующий ему файл отчета Exam Results в одноименной папке
+
+    :param request_file: имя файла запроса из папки Requests
+    :return: имя файла отчета Exam Results из которого будут браться статусы прокторинга
+    """
+    try:
+        crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
+    except FileNotFoundError:
+        logger.error(f'Отсутствует файл {request_file} в папке requests')
+        return -1
+    try:
+        exam_results_file = get_report_list(gs.EXAM_RESULTS_DIRECTORY, report_type='exam')[crs_request_df.iloc[9, 1]]
+    except KeyError:
+        logger.error(f'Нет файла Exam_Results для запроса {crs_request_df.iloc[9, 1]}')
+        return 0
+    else:
+        return exam_results_file
+
+
 def get_report_settings(request_file: str, statement_type: str):
     """
     Функция принимает на входе имя файла запроса и тип отчета, для которого нужны настройки.
@@ -99,7 +121,7 @@ def get_report_settings(request_file: str, statement_type: str):
         return grade_settings  # Настройки для mini отчета. Только столбец grade.
 
     # Настройки для отчета middle
-    elif statement_type == 'middle':
+    elif statement_type == 'middle' or statement_type == 'proctor':
         crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
         grade_cipher = "_".join(crs_request_df.iloc[9, 1].split(sep='_')[:-1]).casefold()  # Берем шифр курса
         try:
@@ -185,6 +207,15 @@ def check_settings(file_name: str, statement_type: str):
     elif gr_report_file == 0:
         return 0  # Отсутствует файл grade report
 
+    if statement_type == 'proctor':
+        exam_result_file = get_exam_results_file(file_name)  # Получаем имя файла отчета
+        if exam_result_file == -1:
+            return 0  # Отсутствует файл-запроса request
+        elif exam_result_file == 0:
+            return 0  # Отсутствует файл exam result
+    else:
+        exam_result_file = 0
+
     gr_settings = get_report_settings(file_name, statement_type=statement_type)  # Получаем словарь настроек
     if gr_settings == 0:
         return 0  # Обработка отсутствия словаря
@@ -195,11 +226,18 @@ def check_settings(file_name: str, statement_type: str):
     grade_date = '.'.join(grade_date_list)  # дата выгрузки Grade Report
     tday = str(date.today().strftime('%d.%m.%Y'))  # сегодняшняя дата
 
+    if exam_result_file != 0:
+        exam_date_list = exam_result_file.split(sep='_')[-1].split(sep='-')[2::-1]  # получаем дату exam_results
+        exam_date = '.'.join(exam_date_list)  # дата выгрузки exam result
+        if tday != exam_date:
+            logger.warning(f'Дата отчета Exam_Result для курса {"_".join(gr_report_file.split(sep="_")[:-3])}'
+                           f' не является актуальной')  # Предупреждение: дата не актуальная
+
     if tday != grade_date:
         logger.warning(f'Дата отчета Grade_Report для курса {"_".join(gr_report_file.split(sep="_")[:-3])}'
                        f' не является актуальной')  # Предупреждение: дата не актуальная
 
-    return [gr_report_file, gr_settings]  # Подтверждаем что все в порядке
+    return [gr_report_file, gr_settings, exam_result_file]  # Подтверждаем что все в порядке
 
 
 def get_statement(file_name: str, statement_type: str):
@@ -221,7 +259,7 @@ def get_statement(file_name: str, statement_type: str):
     if check_list == 0:
         return 0  # Если были ошибки при проверке
     else:
-        gr_report_file, gr_settings = check_list  # Файл отчета и файл настроек
+        gr_report_file, gr_settings, exam_results_file = check_list  # Файл отчета и файл настроек
 
     dir_file_request = f'{gs.REQUESTS_DIRECTORY}/{file_name}'  # Полный путь к файлу заявки
     dir_file_report = f'{gs.GRADE_REPORTS_DIRECTORY}/{gr_report_file}'  # Полный путь к файлу отчету GR
@@ -233,11 +271,25 @@ def get_statement(file_name: str, statement_type: str):
     dir_file_statement = f'{gs.STATEMENTS_DIRECTORY}/{file_name.rstrip(".xlsx")}_{statement_type}_{grade_date}.xlsx'
 
     course_request_df = pnd.read_excel(dir_file_request, 1)  # DF заявки
-    grade_report_df = pnd.read_csv(dir_file_report, delimiter=',')[gr_settings["Columns_for_report"]]  # DF выгрузки
+    grade_report_df = pnd.read_csv(dir_file_report, delimiter=',')  # DF выгрузки
+    exam_results_df = 0
+
+    if statement_type == 'proctor':
+        dir_file_exam_results = f'{gs.EXAM_RESULTS_DIRECTORY}/{exam_results_file}'
+        exam_results_df = pnd.read_csv(dir_file_exam_results, decimal=',')[['exam_name', 'email', 'status']]
+        exam_results_file = get_exam_results_file(file_name)
+        gr_settings = change_dict_settings(gr_settings, exam_results_file, grade_report_df)
 
     if statement_type == 'full':  # Полный отчет
         for x, y in zip(gr_settings["Columns_for_report"][1:], gr_settings["Columns_for_order"][1:]):
             test_list = make_grade_column(course_request_df, grade_report_df, x, 0.01)
+            course_request_df[y] = test_list
+    elif statement_type == 'proctor':   # Отчет с прокторингом
+        for x, y in zip(gr_settings["Columns_for_report"][1:], gr_settings["Columns_for_order"]):
+            if '_Status' in x:
+                test_list = make_status_column(course_request_df, exam_results_df, x)
+            else:
+                test_list = make_grade_column(course_request_df, grade_report_df, x, gr_settings[x])
             course_request_df[y] = test_list
     else:  # Короткий и средний отчеты
         for x, y in zip(gr_settings["Columns_for_report"][1:], gr_settings["Columns_for_order"]):
@@ -254,27 +306,56 @@ def get_exam_names(filename: str):
     return list(exam_set)
 
 
-if __name__ == "__main__":
-    # for file in gs.REQUESTS_FILES:
-    #     if '.~' in file:         # игнорируем временные файлы, которые создаются при открытии
-    #         continue             # необходимо проверить префикс в Windows
-    #     else:
-    #         get_statement(file, 'middle')  # statement_type= mini|middle|full
-
-    # get_statement('UrFU_0079.xlsx', statement_type='middle')  # Заказ конкретного отчета
-    exam_list = (get_exam_names('urfu_SMNGM_fall_2020_net_proctored_exam_results_report_2020-11-16-2001.csv'))
-    exam_list.append('exam2')
-    new_settings = dict.copy(gs.bioeco)
+def change_dict_settings(dict_settings: dict, exam_results_file: str, grade_report_df: pnd.DataFrame):
+    exam_list = (get_exam_names(exam_results_file))
+    new_settings = dict.copy(dict_settings)
+    column_list = grade_report_df.columns.tolist()
 
     a = new_settings['Columns_for_report'].pop(-2)
     new_settings['Columns_for_order'].pop(-2)
     new_settings.__delitem__(a)
 
     for _ in exam_list:
-        new_settings['Columns_for_report'].insert(-1, _)
-        new_settings['Columns_for_order'].insert(-1, _)
-        new_settings[_] = 0.01
+        for column in column_list:
+            if _ in column:
+                new_settings['Columns_for_report'].insert(-1, column)
+                new_settings['Columns_for_report'].insert(-1, _ + '_Status')
+                new_settings['Columns_for_order'].insert(-1, column)
+                new_settings['Columns_for_order'].insert(-1, _ + '_Status')
+                new_settings[column] = 0.01
+    return new_settings
 
-    print(new_settings)
-    print(a)
+
+def make_status_column(request_df: pnd.DataFrame, exam_results_df: pnd.DataFrame, exam_name: str):
+    result_col = []
+    possible_emails = request_df['Адрес электронной почты'].str.lower()
+    possible_emails = possible_emails.tolist()
+
+    exam_results_df = exam_results_df[exam_results_df['exam_name'] == exam_name[:-7]]
+
+    for _ in possible_emails:
+        try:
+            value = exam_results_df[exam_results_df['email'] == _]['status'].iloc[0]
+        except IndexError:
+            value = 'Не сдавал'
+        if value == 'verified':
+            result_col.append('Подтверждено')
+        elif value == 'rejected':
+            result_col.append('Отклонено')
+        elif value == 'submitted':
+            result_col.append('Отправлено на проверку')
+        else:
+            result_col.append(value)
+    return result_col
+
+
+if __name__ == "__main__":
+    for file in gs.REQUESTS_FILES:
+        if '.~' in file:         # игнорируем временные файлы, которые создаются при открытии
+            continue             # необходимо проверить префикс в Windows
+        else:
+            get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
+
+    # get_statement('СФУ_Самоменеджмент_fall_2020.xlsx', statement_type='proctor')  # Заказ конкретного отчета
+
 
