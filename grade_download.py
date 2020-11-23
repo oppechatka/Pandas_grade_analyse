@@ -161,7 +161,7 @@ def order_exam_results(course_name: str, w_driver):
             (By.CSS_SELECTOR, "#report-request-response")) or expected_conditions.visibility_of_element_located(
             (By.CSS_SELECTOR, "#report-request-response-error")))  # Проверка двух условий работает только через lambda
     except NoSuchElementException:
-        logger.warning(f"Нет наблюдаемых испытаний на курсе - {course_name}")
+        print("Нет наблюдаемых испытаний на курсе - " + course_name)
     w_driver.get('https://openedu.ru/')
 
 
@@ -262,6 +262,6 @@ def download_exam_results():
 
 if __name__ == '__main__':
     # make_grade_report_order()   # Заказ отчета Grade Report
-    make_exam_results_order()   # Заказ отчета Exam Results
-    # download_grade_report()     # Скачивание отчета Grade Report
+    # make_exam_results_order()   # Заказ отчета Exam Results
+    download_grade_report()     # Скачивание отчета Grade Report
     # download_exam_results()     # Скачивание отчета Exam Results
