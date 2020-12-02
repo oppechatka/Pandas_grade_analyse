@@ -308,6 +308,7 @@ def get_exam_names(filename: str):
 
 def change_dict_settings(dict_settings: dict, exam_results_file: str, grade_report_df: pnd.DataFrame):
     exam_list = (get_exam_names(exam_results_file))
+    exam_list.append('Восстановление баллов')
     new_settings = dict.copy(dict_settings)
     column_list = grade_report_df.columns.tolist()
 
@@ -318,11 +319,16 @@ def change_dict_settings(dict_settings: dict, exam_results_file: str, grade_repo
     for _ in exam_list:
         for column in column_list:
             if _ in column:
-                new_settings['Columns_for_report'].insert(-1, column)
-                new_settings['Columns_for_report'].insert(-1, _ + '_Status')
-                new_settings['Columns_for_order'].insert(-1, column)
-                new_settings['Columns_for_order'].insert(-1, _ + '_Status')
-                new_settings[column] = 0.01
+                if _ == "Восстановление баллов":
+                    new_settings['Columns_for_report'].insert(-1, column)
+                    new_settings['Columns_for_order'].insert(-1, column)
+                    new_settings[column] = 0.01
+                else:
+                    new_settings['Columns_for_report'].insert(-1, column)
+                    new_settings['Columns_for_report'].insert(-1, _ + '_Status')
+                    new_settings['Columns_for_order'].insert(-1, column)
+                    new_settings['Columns_for_order'].insert(-1, _ + '_Status')
+                    new_settings[column] = 0.01
     return new_settings
 
 
@@ -357,5 +363,3 @@ if __name__ == "__main__":
             get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
 
     # get_statement('СФУ_Самоменеджмент_fall_2020.xlsx', statement_type='proctor')  # Заказ конкретного отчета
-
-
