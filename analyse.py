@@ -5,7 +5,7 @@ import pandas as pnd
 import grade_settings as gs
 
 
-def get_report_list(directory: object, report_type: object = 'grade') -> object:
+def get_report_list(directory: str, report_type='grade') -> dict:
     """
     Функция получает на входе строкой директорию, где находятся файлы с отчетами Grade Report, пробегает по всем файлам
     и формирует словарь в виде:
@@ -37,7 +37,7 @@ def get_report_list(directory: object, report_type: object = 'grade') -> object:
     return dict_file
 
 
-def get_columns(list_columns: list):
+def get_columns(list_columns: list) -> list:
     """
     Функция получает на вход список всех столбцов в файле отчета Grade Report и сохраняет в новый список
     столбцы с оценками от столбца "Grade" до "Cohort Name"(не включительно). Из списка также исключаются столбцы
@@ -363,4 +363,3 @@ if __name__ == "__main__":
             get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
 
     # get_statement('СФУ_Самоменеджмент_fall_2020.xlsx', statement_type='proctor')  # Заказ конкретного отчета
-
