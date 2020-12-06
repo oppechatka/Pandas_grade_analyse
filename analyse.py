@@ -5,7 +5,7 @@ import pandas as pnd
 import grade_settings as gs
 
 
-def get_report_list(directory: str, report_type='grade'):
+def get_report_list(directory: object, report_type: object = 'grade') -> object:
     """
     Функция получает на входе строкой директорию, где находятся файлы с отчетами Grade Report, пробегает по всем файлам
     и формирует словарь в виде:
@@ -28,7 +28,7 @@ def get_report_list(directory: str, report_type='grade'):
     for x in range(len(file_list)):
         file_grade = file_list[x].split(sep="_")
         file_grade = file_grade[1:x_end]
-        if file_grade[-1] == "net":
+        if len(file_grade) > 3:
             key_str = '_'.join(file_grade[:-3]) + '_' + ''.join(file_grade[-3:])
             dict_file[key_str] = file_list[x]
         else:
@@ -363,3 +363,4 @@ if __name__ == "__main__":
             get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
 
     # get_statement('СФУ_Самоменеджмент_fall_2020.xlsx', statement_type='proctor')  # Заказ конкретного отчета
+
