@@ -6,6 +6,7 @@ import grade_settings as gs
 
 
 def get_report_list(directory: str, report_type='grade') -> dict:
+    # TODO переработать функцию. Возможны сбои при создании скрытого курса в названии которого больше чем 2 слова
     """
     Функция получает на входе строкой директорию, где находятся файлы с отчетами Grade Report, пробегает по всем файлам
     и формирует словарь в виде:
@@ -20,15 +21,15 @@ def get_report_list(directory: str, report_type='grade') -> dict:
     """
     file_list = listdir(directory)
     dict_file = dict()
-    x_end = -3                  # Делаем срез для названия в отчете Grade Report
+    x_end = -3  # Делаем срез для названия в отчете Grade Report
 
     if report_type == 'exam':
-        x_end = -5              # Делаем срез для названия в отчете Exam Results
+        x_end = -5  # Делаем срез для названия в отчете Exam Results
 
     for x in range(len(file_list)):
         file_grade = file_list[x].split(sep="_")
         file_grade = file_grade[1:x_end]
-        if len(file_grade) > 3:
+        if file_grade[-1] == "net" or file_grade[-1] == "npr":
             key_str = '_'.join(file_grade[:-3]) + '_' + ''.join(file_grade[-3:])
             dict_file[key_str] = file_list[x]
         else:
@@ -284,7 +285,7 @@ def get_statement(file_name: str, statement_type: str):
         for x, y in zip(gr_settings["Columns_for_report"][1:], gr_settings["Columns_for_order"][1:]):
             test_list = make_grade_column(course_request_df, grade_report_df, x, 0.01)
             course_request_df[y] = test_list
-    elif statement_type == 'proctor':   # Отчет с прокторингом
+    elif statement_type == 'proctor':  # Отчет с прокторингом
         for x, y in zip(gr_settings["Columns_for_report"][1:], gr_settings["Columns_for_order"]):
             if '_Status' in x:
                 test_list = make_status_column(course_request_df, exam_results_df, x)
@@ -356,10 +357,11 @@ def make_status_column(request_df: pnd.DataFrame, exam_results_df: pnd.DataFrame
 
 
 if __name__ == "__main__":
-    for file in gs.REQUESTS_FILES:
-        if '.~' in file:         # игнорируем временные файлы, которые создаются при открытии
-            continue             # необходимо проверить префикс в Windows
-        else:
-            get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
+    # for file in gs.REQUESTS_FILES:
+    #     if '.~' in file:  # игнорируем временные файлы, которые создаются при открытии
+    #         continue  # необходимо проверить префикс в Windows
+    #     else:
+    #         get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
 
     # get_statement('СФУ_Самоменеджмент_fall_2020.xlsx', statement_type='proctor')  # Заказ конкретного отчета
+    print(get_report_list(gs.GRADE_REPORTS_DIRECTORY))
