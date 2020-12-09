@@ -357,11 +357,10 @@ def make_status_column(request_df: pnd.DataFrame, exam_results_df: pnd.DataFrame
 
 
 if __name__ == "__main__":
-    # for file in gs.REQUESTS_FILES:
-    #     if '.~' in file:  # игнорируем временные файлы, которые создаются при открытии
-    #         continue  # необходимо проверить префикс в Windows
-    #     else:
-    #         get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
+    for file in gs.REQUESTS_FILES:
+        if '.~' in file or '~$' in file:  # игнорируем временные файлы, которые создаются при открытии
+            continue
+        else:
+            get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
 
     # get_statement('СФУ_Самоменеджмент_fall_2020.xlsx', statement_type='proctor')  # Заказ конкретного отчета
-    print(get_report_list(gs.GRADE_REPORTS_DIRECTORY))
