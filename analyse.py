@@ -304,7 +304,9 @@ def get_statement(file_name: str, statement_type: str):
 def get_exam_names(filename: str):
     df_exam_result = pnd.read_csv(gs.EXAM_RESULTS_DIRECTORY + '/' + filename)
     exam_set = set(df_exam_result['exam_name'])
-    return list(exam_set)
+    exam_set = list(exam_set)
+    exam_set.sort()
+    return exam_set
 
 
 def change_dict_settings(dict_settings: dict, exam_results_file: str, grade_report_df: pnd.DataFrame):
@@ -363,42 +365,71 @@ def get_status_df(proctor_file: str):
     first_df = pnd.read_csv(gs.EXAM_RESULTS_DIRECTORY + '/' + proctor_file, sep=',')
     first_df = first_df[['exam_name', 'username', 'email', 'status']]
 
-    final_df = first_df[['username', 'email']]
+    final_df = first_df[['username', 'email']].drop_duplicates()
     list_exam = first_df['exam_name'].tolist()
-    list_exam = set(list_exam)
+    list_exam = list(set(list_exam))
+    list_exam.sort()
+    map_filter = {'created': 'Создано',
+                  'submitted': 'Отправлено на проверку',
+                  'verified': 'Подтверждено',
+                  'rejected': 'Отклонено',
+                  }
 
     for x in list_exam:
         my_filter = first_df['exam_name'] == x
         temp_df = first_df.loc[my_filter]
         final_df = pnd.merge(final_df, temp_df[['email', 'status']], on='email', how='left')
+        final_df['status'] = final_df['status'].map(map_filter)
         final_df['status'].fillna('Не сдавал', inplace=True)
-        print(x)
-        final_df.rename(columns={'status': x + '_status'}, inplace=True)
+        final_df.rename(columns={'status': x + '_Status'}, inplace=True)
 
-    print(final_df)
+    return final_df
 
 
 def get_proctor_report(request_file: str):
 
-    report_file = get_grade_report_file(request_file)
+    check_list = check_settings(request_file, statement_type='proctor')
+    if check_list == 0:
+        return 0  # Если были ошибки при проверке
+    else:
+        gr_report_file, gr_settings, exam_results_file = check_list  # Файл отчета и файл настроек
+
+    report_file = gr_report_file    # get_grade_report_file(request_file)
     report_df = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY + '/' + report_file, delimiter=',')
+
+    # надо рассчитывать автоматически
+    # report_df['Прогресс'] = (report_df['Тестовое задание (Avg)'] + report_df['Промежуточный контроль (Avg)']) / 0.0062
+
     request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 1)
     request_df.rename(columns={'Адрес электронной почты': 'Email'}, inplace=True)
-    report_settings = get_report_settings(request_file, 'middle')
-    result_df = pnd.merge(request_df, report_df[report_settings['Columns_for_report']], on='Email', how='left')
+
+    grade_date_list = gr_report_file.split(sep='_')[-1].split(sep='-')[2::-1]  # Берем дату отчета из имени файла
+    grade_date = '.'.join(grade_date_list)  # И сохраняем ее в нужном формате
+    dir_file_statement = f'{gs.STATEMENTS_DIRECTORY}/{request_file.rstrip(".xlsx")}_proctor_{grade_date}.xlsx'
+
+    report_settings = get_report_settings(request_file, 'proctor')
+    report_settings = change_dict_settings(report_settings, exam_results_file, report_df)
+
+    status_df = get_status_df(exam_results_file)
+    status_df = status_df.rename(columns={'email': 'Email'})
+
+    temp_df = pnd.merge(report_df, status_df, on='Email', how='left')
+    result_df = pnd.merge(request_df, temp_df[report_settings['Columns_for_report']], on='Email', how='left')
 
     # Костыли-велосипеды наши лучшие соседы!
     for column in report_settings['Columns_for_report'][1:]:
-        result_df[column].fillna(report_settings[column]*-1, inplace=True)
-        result_df[column].replace('Not Available', report_settings[column]*-2, inplace=True)
-        result_df[column] = (result_df[column] / report_settings[column]).__round__(0)
+        if '_Status' not in column:
+            result_df[column].fillna(report_settings[column]*-1, inplace=True)
+            result_df[column].replace('Not Available', report_settings[column]*-2, inplace=True)
+            result_df[column] = (result_df[column] / report_settings[column]).__round__(0)
 
-        result_df[column].replace(-1, 'Нет на курсе', inplace=True)
-        result_df[column].replace(-2, 'Не доступно', inplace=True)
+            result_df[column].replace(-1, 'Нет на курсе', inplace=True)
+            result_df[column].replace(-2, 'Не доступно', inplace=True)
+        else:
+            result_df[column].fillna('Не сдавал', inplace=True)
 
-    print(result_df)
-
-    result_df.to_excel('result.xlsx', index=None)
+    result_df.to_excel(dir_file_statement, index=False)
+    logger.info(f'{request_file.rstrip(".xlsx")}_proctor_{grade_date}.xlsx - OK!')
 
 
 if __name__ == "__main__":
@@ -411,5 +442,5 @@ if __name__ == "__main__":
     # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='middle')  # Заказ конкретного отчета
     # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='full')  # Заказ конкретного отчета
 
-    # get_proctor_report('Линейная алгебра.xlsx')
-    get_status_df('urfu_ECOEFF_fall_2020_proctored_exam_results_report_2021-01-02-0729.csv')
+    get_proctor_report('Линейная алгебра.xlsx')
+
