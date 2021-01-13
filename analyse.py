@@ -330,6 +330,7 @@ def change_dict_settings(dict_settings: dict, exam_results_file: str, grade_repo
                     new_settings['Columns_for_order'].insert(-1, column)
                     new_settings['Columns_for_order'].insert(-1, _ + '_Status')
                     new_settings[column] = 0.01
+
     return new_settings
 
 
@@ -351,16 +352,64 @@ def make_status_column(request_df: pnd.DataFrame, exam_results_df: pnd.DataFrame
             result_col.append('Отклонено')
         elif value == 'submitted':
             result_col.append('Отправлено на проверку')
+        elif value == 'created':
+            result_col.append('Создано')
         else:
             result_col.append(value)
     return result_col
 
 
-if __name__ == "__main__":
-    for file in gs.REQUESTS_FILES:
-        if '.~' in file or '~$' in file:  # игнорируем временные файлы, которые создаются при открытии
-            continue
-        else:
-            get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
+def get_status_df(proctor_file: str):
+    first_df = pnd.read_csv(gs.EXAM_RESULTS_DIRECTORY + '/' + proctor_file, sep=',')
+    first_df = first_df[['exam_name', 'username', 'email', 'status']]
 
-    # get_statement('СФУ_Самоменеджмент_fall_2020.xlsx', statement_type='proctor')  # Заказ конкретного отчета
+    final_df = first_df[['username', 'email']]
+    list_exam = first_df['exam_name'].tolist()
+    list_exam = set(list_exam)
+
+    for x in list_exam:
+        my_filter = first_df['exam_name'] == x
+        temp_df = first_df.loc[my_filter]
+        final_df = pnd.merge(final_df, temp_df[['email', 'status']], on='email', how='left')
+        final_df['status'].fillna('Не сдавал', inplace=True)
+        print(x)
+        final_df.rename(columns={'status': x + '_status'}, inplace=True)
+
+    print(final_df)
+
+
+def get_proctor_report(request_file: str):
+
+    report_file = get_grade_report_file(request_file)
+    report_df = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY + '/' + report_file, delimiter=',')
+    request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 1)
+    request_df.rename(columns={'Адрес электронной почты': 'Email'}, inplace=True)
+    report_settings = get_report_settings(request_file, 'middle')
+    result_df = pnd.merge(request_df, report_df[report_settings['Columns_for_report']], on='Email', how='left')
+
+    # Костыли-велосипеды наши лучшие соседы!
+    for column in report_settings['Columns_for_report'][1:]:
+        result_df[column].fillna(report_settings[column]*-1, inplace=True)
+        result_df[column].replace('Not Available', report_settings[column]*-2, inplace=True)
+        result_df[column] = (result_df[column] / report_settings[column]).__round__(0)
+
+        result_df[column].replace(-1, 'Нет на курсе', inplace=True)
+        result_df[column].replace(-2, 'Не доступно', inplace=True)
+
+    print(result_df)
+
+    result_df.to_excel('result.xlsx', index=None)
+
+
+if __name__ == "__main__":
+    # for file in gs.REQUESTS_FILES:
+    #     if '.~' in file or '~$' in file:  # игнорируем временные файлы, которые создаются при открытии
+    #         continue
+    #     else:
+    #         get_statement(file, 'full')  # statement_type= mini|middle|full|proctor
+
+    # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='middle')  # Заказ конкретного отчета
+    # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='full')  # Заказ конкретного отчета
+
+    # get_proctor_report('Линейная алгебра.xlsx')
+    get_status_df('urfu_ECOEFF_fall_2020_proctored_exam_results_report_2021-01-02-0729.csv')
