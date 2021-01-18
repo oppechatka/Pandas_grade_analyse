@@ -260,8 +260,37 @@ def download_exam_results():
     driver.close()
 
 
+def change_deadlines(course_name: str, email: str, deadline: str):
+    driver = make_web_driver()
+    login(driver)
+    course_url = f'https://courses.openedu.ru/courses/course-v1:urfu+{course_name}/instructor#view-extensions'
+    driver.get(course_url)
+    driver.set_window_size(1920, 1022)
+
+    driver.find_element(By.NAME, "student").send_keys(email)
+    driver.find_element(By.NAME, "due_datetime").send_keys(deadline)
+
+    css_selector = '#set-extension > p:nth-child(4) > select:nth-child(1) > option'
+    task_list = driver.find_elements_by_css_selector(css_selector)
+
+    for task in task_list:
+        if 'Выберите один' in task.text or\
+                'Итогов' in task.text or\
+                'команда курса' in task.text or\
+                'Эссе' in task.text:
+            print(task.text)
+            continue
+        else:
+            task.click()
+            driver.find_element(By.NAME, "change-due-date").click()
+            WebDriverWait(driver, 1000).until(
+                expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, '#set-extension > p:nth-child(7)')))
+    driver.close()
+
+
 if __name__ == '__main__':
     # make_grade_report_order()   # Заказ отчета Grade Report
     # make_exam_results_order()   # Заказ отчета Exam Results
-    download_grade_report()     # Скачивание отчета Grade Report
+    # download_grade_report()     # Скачивание отчета Grade Report
     # download_exam_results()     # Скачивание отчета Exam Results
+    change_deadlines('PHILSCI+fall_2020', 'openedu@urfu.ru', '01/28/2021 23:30')
