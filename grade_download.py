@@ -278,7 +278,7 @@ def change_deadlines(course_name: str, email: str, deadline: str):
                 'Итогов' in task.text or\
                 'команда курса' in task.text or\
                 'Эссе' in task.text:
-            print(task.text)
+            logger.info('Не было включено в обработку задание' + task.text)
             continue
         else:
             task.click()
