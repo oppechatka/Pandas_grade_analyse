@@ -421,6 +421,7 @@ def get_proctor_report(request_file: str):
         if '_Status' not in column:
             result_df[column].fillna(report_settings[column]*-1, inplace=True)
             result_df[column].replace('Not Available', report_settings[column]*-2, inplace=True)
+            result_df[column] = result_df[column].astype('float')
             result_df[column] = (result_df[column] / report_settings[column]).__round__(0)
 
             result_df[column].replace(-1, 'Нет на курсе', inplace=True)
@@ -433,14 +434,15 @@ def get_proctor_report(request_file: str):
 
 
 if __name__ == "__main__":
-    # for file in gs.REQUESTS_FILES:
-    #     if '.~' in file or '~$' in file:  # игнорируем временные файлы, которые создаются при открытии
-    #         continue
-    #     else:
-    #         get_statement(file, 'full')  # statement_type= mini|middle|full|proctor
+    for file in gs.REQUESTS_FILES:
+        if '.~' in file or '~$' in file:  # игнорируем временные файлы, которые создаются при открытии
+            continue
+        else:
+            # get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
+            get_proctor_report(file)
 
     # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='middle')  # Заказ конкретного отчета
     # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='full')  # Заказ конкретного отчета
 
-    get_proctor_report('Линейная алгебра.xlsx')
+    # get_proctor_report('Линейная алгебра.xlsx')
 
