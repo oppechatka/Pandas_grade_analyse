@@ -396,21 +396,30 @@ def get_proctor_report(request_file: str):
 
     report_file = gr_report_file    # get_grade_report_file(request_file)
     report_df = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY + '/' + report_file, delimiter=',')
+    report_df['Email'] = report_df['Email'].str.lower()
 
-    # надо рассчитывать автоматически
-    # report_df['Прогресс'] = (report_df['Тестовое задание (Avg)'] + report_df['Промежуточный контроль (Avg)']) / 0.0062
+    # Рассчитываем поле "прогресс" и добавляем его в таблицу с grade report
+    rate = 0
+    for col in gr_settings['Columns_for_report'][1:-2]:
+        rate += gr_settings[col]
+    report_df['Прогресс'] = ((report_df[gr_settings['Columns_for_report'][1:-2]].sum(axis=1))/rate).__round__(0)
 
     request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 1)
+    request_df['Адрес электронной почты'] = request_df['Адрес электронной почты'].str.lower()
     request_df.rename(columns={'Адрес электронной почты': 'Email'}, inplace=True)
 
     grade_date_list = gr_report_file.split(sep='_')[-1].split(sep='-')[2::-1]  # Берем дату отчета из имени файла
     grade_date = '.'.join(grade_date_list)  # И сохраняем ее в нужном формате
-    dir_file_statement = f'{gs.STATEMENTS_DIRECTORY}/{request_file.rstrip(".xlsx")}_proctor_{grade_date}.xlsx'
+    dir_file_statement = f'{gs.STATEMENTS_DIRECTORY}/{request_file.rstrip(".xlsx")}_new_proctor_{grade_date}.xlsx'
 
     report_settings = get_report_settings(request_file, 'proctor')
     report_settings = change_dict_settings(report_settings, exam_results_file, report_df)
+    report_settings['Columns_for_report'].append('Прогресс')
+    report_settings['Columns_for_order'].append('Прогресс')
+    report_settings['Прогресс'] = 1
 
     status_df = get_status_df(exam_results_file)
+    status_df['email'] = status_df['email'].str.lower()
     status_df = status_df.rename(columns={'email': 'Email'})
 
     temp_df = pnd.merge(report_df, status_df, on='Email', how='left')
@@ -429,8 +438,11 @@ def get_proctor_report(request_file: str):
         else:
             result_df[column].fillna('Не сдавал', inplace=True)
 
+    for column_rep, column_ord in zip(report_settings['Columns_for_report'][1:], report_settings['Columns_for_order']):
+        result_df.rename(columns={column_rep: column_ord}, inplace=True)
+
     result_df.to_excel(dir_file_statement, index=False)
-    logger.info(f'{request_file.rstrip(".xlsx")}_proctor_{grade_date}.xlsx - OK!')
+    logger.info(f'{request_file.rstrip(".xlsx")}_new_proctor_{grade_date}.xlsx - OK!')
 
 
 if __name__ == "__main__":

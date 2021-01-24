@@ -278,12 +278,12 @@ def change_deadlines(course_name: str, email: str, deadline: str):
                 'Итогов' in task.text or\
                 'команда курса' in task.text or\
                 'Эссе' in task.text:
-            logger.info('Не было включено в обработку задание' + task.text)
+            logger.info(f'Не было включено в обработку задание \"{task.text}\" для пользователя \"{email}\"')
             continue
         else:
             task.click()
             driver.find_element(By.NAME, "change-due-date").click()
-            WebDriverWait(driver, 1000).until(
+            WebDriverWait(driver, 2000).until(
                 expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, '#set-extension > p:nth-child(7)')))
     driver.close()
 
@@ -293,4 +293,4 @@ if __name__ == '__main__':
     # make_exam_results_order()   # Заказ отчета Exam Results
     # download_grade_report()     # Скачивание отчета Grade Report
     # download_exam_results()     # Скачивание отчета Exam Results
-    change_deadlines('PHILSCI+fall_2020', 'openedu@urfu.ru', '01/28/2021 23:30')
+    change_deadlines('PHILSCI+fall_2020', 'i.shaikhutdinova@mail.ru', '01/28/2021 23:30')
