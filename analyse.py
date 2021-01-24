@@ -402,7 +402,7 @@ def get_proctor_report(request_file: str):
     rate = 0
     for col in gr_settings['Columns_for_report'][1:-2]:
         rate += gr_settings[col]
-    report_df['Прогресс'] = ((report_df[gr_settings['Columns_for_report'][1:-2]].sum(axis=1))/rate).__round__(0)
+    report_df['Прогресс в БРС'] = ((report_df[gr_settings['Columns_for_report'][1:-2]].sum(axis=1))/rate).__round__(0)
 
     request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 1)
     request_df['Адрес электронной почты'] = request_df['Адрес электронной почты'].str.lower()
@@ -414,9 +414,9 @@ def get_proctor_report(request_file: str):
 
     report_settings = get_report_settings(request_file, 'proctor')
     report_settings = change_dict_settings(report_settings, exam_results_file, report_df)
-    report_settings['Columns_for_report'].append('Прогресс')
-    report_settings['Columns_for_order'].append('Прогресс')
-    report_settings['Прогресс'] = 1
+    report_settings['Columns_for_report'].append('Прогресс в БРС')
+    report_settings['Columns_for_order'].append('Прогресс в БРС')
+    report_settings['Прогресс в БРС'] = 1
 
     status_df = get_status_df(exam_results_file)
     status_df['email'] = status_df['email'].str.lower()
@@ -455,6 +455,3 @@ if __name__ == "__main__":
 
     # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='middle')  # Заказ конкретного отчета
     # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='full')  # Заказ конкретного отчета
-
-    # get_proctor_report('Линейная алгебра.xlsx')
-
