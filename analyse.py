@@ -450,8 +450,11 @@ if __name__ == "__main__":
         if '.~' in file or '~$' in file:  # игнорируем временные файлы, которые создаются при открытии
             continue
         else:
+            # get_statement(file, 'mini')  # statement_type= mini|middle|full|proctor
+            get_statement(file, 'middle')  # statement_type= mini|middle|full|proctor
+            # get_statement(file, 'full')  # statement_type= mini|middle|full|proctor
             # get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
-            get_proctor_report(file)
+            # get_proctor_report(file)
 
     # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='middle')  # Заказ конкретного отчета
     # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='full')  # Заказ конкретного отчета

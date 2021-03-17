@@ -291,6 +291,6 @@ def change_deadlines(course_name: str, email: str, deadline: str):
 if __name__ == '__main__':
     # make_grade_report_order()   # Заказ отчета Grade Report
     # make_exam_results_order()   # Заказ отчета Exam Results
-    # download_grade_report()     # Скачивание отчета Grade Report
+    download_grade_report()     # Скачивание отчета Grade Report
     # download_exam_results()     # Скачивание отчета Exam Results
-    change_deadlines('PHILSCI+fall_2020', 'i.shaikhutdinova@mail.ru', '01/28/2021 23:30')
+    # change_deadlines('PHILSCI+fall_2020', 'i.shaikhutdinova@mail.ru', '01/28/2021 23:30')
