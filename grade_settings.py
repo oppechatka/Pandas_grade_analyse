@@ -12,8 +12,8 @@ DEFAULT_DOWNLOAD_DIR = '/home/oppa/'
 
 REQUESTS_FILES = listdir(REQUESTS_DIRECTORY)
 
-USERNAME = 'oppechatka'
-PASSWORD = 'TrekProTrekO30'
+USERNAME = ''
+PASSWORD = ''
 
 archc = {"Тестирование (Avg)": 0.006,
          "Итоговый контроль (Avg)": 0.004,
