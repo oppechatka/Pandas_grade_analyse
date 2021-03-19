@@ -297,7 +297,7 @@ def get_statement(file_name: str, statement_type: str):
             test_list = make_grade_column(course_request_df, grade_report_df, x, gr_settings[x])
             course_request_df[y] = test_list
 
-    course_request_df.to_excel(dir_file_statement, index=False)
+    course_request_df.to_excel(dir_file_statement, sheet_name=gr_settings["Sheet_name"], index=False)
     logger.info(f'{file_name.rstrip(".xlsx")}_{statement_type}_{grade_date}.xlsx - OK!')
 
 
