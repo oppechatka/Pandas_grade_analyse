@@ -445,6 +445,57 @@ def get_proctor_report(request_file: str):
     result_df.to_excel(dir_file_statement, index=False)
     logger.info(f'{request_file.rstrip(".xlsx")}_new_proctor_{grade_date}.xlsx - OK!')
 
+def search_by_fio(file: str):
+    """
+    Функция делает поиск учеток в grade report по полному совпадению ФИО из файла запроса
+    """
+    # файл запроса
+    try:
+        df_list = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file, sheet_name=1)
+        df_list_course = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file, sheet_name=0)
+    except:
+        logger.error(f'Нет файла запроса {file}')
+        return -1
+    session_course = df_list_course.iloc[9, 1]
+    df_list.rename(columns={'Адрес электронной почты': 'Email'}, inplace=True)
+    df_list['Email'].fillna('', inplace=True)
+    df_email = df_list.loc[df_list['Email'] != '']
+    df_email = df_email[['Email']]
+    df_email = df_email.drop_duplicates()
+    df_list = df_list.loc[pnd.isna(df_list['Email'])]
+    df_list['Отчество'].fillna('', inplace=True)
+    df_list['fio'] = df_list["Фамилия"] + df_list["Имя"] + df_list["Отчество"]
+    df_list['fio'] = df_list['fio'].str.lower()
+    df_list['fio'] = df_list['fio'].str.replace('ё', 'е', regex=False)
+    df_list['fio'] = df_list['fio'].str.replace(' ', '', regex=False)
+    df_list = df_list.drop_duplicates(subset=['fio'], keep=False)
+    df_list = df_list.set_index(['fio'])
+
+    # подготовка grade report
+    try:
+        df_grade = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY + '/' + get_grade_report_file(file), sep=',')
+    except:
+        logger.error(f'Нет файла отчета {get_grade_report_file(file)}')
+        return -2
+    df_grade['Last Name'].fillna('', inplace=True)
+    df_grade['First Name'].fillna('', inplace=True)
+    df_grade['Second Name'].fillna('', inplace=True)
+    df_grade['fio'] = df_grade['Last Name'] + df_grade['First Name'] + df_grade['Second Name']
+    df_grade['fio'] = df_grade['fio'].str.lower()
+    df_grade['fio'] = df_grade['fio'].str.replace('ё', 'е', regex=False)
+    df_grade['fio'] = df_grade['fio'].str.replace(' ', '', regex=False)
+    df_grade = df_grade.drop_duplicates(subset=['fio'], keep=False)
+    df_grade = df_grade.set_index(['fio'])
+
+    # слияние
+    df_grade = df_grade.loc[~df_grade['Email'].isin(df_email['Email'])]
+    df_full = pnd.merge(df_list, df_grade[
+        ['Student ID', 'Username', 'Email', 'Last Name', 'First Name', 'Second Name', 'Grade percent']], on='fio',
+                       how='left')
+    df_full = df_full.loc[pnd.isna(df_full['Email_y']) == False]
+    df_full.to_excel(f'{gs.STATEMENTS_DIRECTORY}/{session_course}_fio.xlsx', index=False)
+    logger.info(f'{session_course}_fio.xlsx: найдено {len(df_full.index)}')
+
 
 if __name__ == "__main__":
     for file in gs.REQUESTS_FILES:
@@ -452,10 +503,11 @@ if __name__ == "__main__":
             continue
         else:
             # get_statement(file, 'mini')  # statement_type= mini|middle|full|proctor
-            get_statement(file, 'middle')  # statement_type= mini|middle|full|proctor
+            # get_statement(file, 'middle')  # statement_type= mini|middle|full|proctor
             # get_statement(file, 'full')  # statement_type= mini|middle|full|proctor
             # get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
             # get_proctor_report(file)
+            search_by_fio(file) # Поиск учеток по фио
 
     # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='middle')  # Заказ конкретного отчета
     # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='full')  # Заказ конкретного отчета
