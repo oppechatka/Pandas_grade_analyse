@@ -462,8 +462,9 @@ def search_by_fio(file: str):
     df_email = df_list.loc[df_list['Email'] != '']
     df_email = df_email[['Email']]
     df_email = df_email.drop_duplicates()
-    df_list = df_list.loc[pnd.isna(df_list['Email'])]
     df_list['Отчество'].fillna('', inplace=True)
+    df_list['Email'].fillna('', inplace=True)
+    df_list = df_list.loc[df_list['Email'] == '']
     df_list['fio'] = df_list["Фамилия"] + df_list["Имя"] + df_list["Отчество"]
     df_list['fio'] = df_list['fio'].str.lower()
     df_list['fio'] = df_list['fio'].str.replace('ё', 'е', regex=False)
@@ -507,7 +508,7 @@ if __name__ == "__main__":
             # get_statement(file, 'full')  # statement_type= mini|middle|full|proctor
             # get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
             # get_proctor_report(file)
-            search_by_fio(file) # Поиск учеток по фио
+            search_by_fio(file)     # Поиск учеток по фио
 
     # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='middle')  # Заказ конкретного отчета
     # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='full')  # Заказ конкретного отчета
