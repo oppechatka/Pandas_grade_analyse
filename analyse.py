@@ -20,6 +20,7 @@ def get_report_list(directory: str, report_type='grade') -> dict:
     :return: Cловарь, где ключом является шифр курса (прим. ecos_fall2020net ), значение полное имя файла с отчетом
     """
     file_list = listdir(directory)
+    file_list.sort(reverse=False)
     dict_file = dict()
     x_end = -3  # Делаем срез для названия в отчете Grade Report
 

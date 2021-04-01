@@ -12,8 +12,8 @@ DEFAULT_DOWNLOAD_DIR = '/home/oppa/'
 
 REQUESTS_FILES = listdir(REQUESTS_DIRECTORY)
 
-USERNAME = ''
-PASSWORD = ''
+USERNAME = 'oppechatka'
+PASSWORD = 'TrekProTrekO30'
 
 archc = {"Тестирование (Avg)": 0.006,
          "Итоговый контроль (Avg)": 0.004,
@@ -904,29 +904,10 @@ smngm = {"Учебное задание (Avg)": 0.006,
          "Sheet_name": "Самоменеджмент"
          }
 
-softskills = {"Homework (Avg)": 0.0015,
-              "Lab (Avg)": 0.0015,
-              "Midterm Exam (Avg)": 0.003,
-              "Final Exam (Avg)": 0.004,
-              "Grade": 0.01,
-              "Columns_for_order": ["Домашние задания (проходной балл 40)",
-                                    "Учебные задания (проходной балл 40)",
-                                    "Промежуточный контроль (проходной балл 40)",
-                                    "Экзамен (проходной балл 40)",
-                                    "Итоговый балл"],
-              "Columns_for_report": ["Email",
-                                     "Homework (Avg)",
-                                     "Lab (Avg)",
-                                     "Midterm Exam (Avg)",
-                                     "Final Exam (Avg)",
-                                     "Grade"],
-              "Sheet_name": "Soft Skill"
-              }
-
-# softskills = {"Homework (Avg)": 0.0015,    # Скрытый Самоменеджмент
+# softskills = {"Homework (Avg)": 0.0015,
 #               "Lab (Avg)": 0.0015,
-#               "Midterm Exam": 0.01,
-#               "Final Exam": 0.01,
+#               "Midterm Exam (Avg)": 0.003,
+#               "Final Exam (Avg)": 0.004,
 #               "Grade": 0.01,
 #               "Columns_for_order": ["Домашние задания (проходной балл 40)",
 #                                     "Учебные задания (проходной балл 40)",
@@ -936,11 +917,30 @@ softskills = {"Homework (Avg)": 0.0015,
 #               "Columns_for_report": ["Email",
 #                                      "Homework (Avg)",
 #                                      "Lab (Avg)",
-#                                      "Midterm Exam",
-#                                      "Final Exam",
+#                                      "Midterm Exam (Avg)",
+#                                      "Final Exam (Avg)",
 #                                      "Grade"],
-#               "Sheet_name": "Soft Skill РТФ"
+#               "Sheet_name": "Soft Skill"
 #               }
+
+softskills = {"Homework (Avg)": 0.0015,    # Скрытый Самоменеджмент
+              "Lab (Avg)": 0.0015,
+              "Midterm Exam": 0.01,
+              "Final Exam": 0.01,
+              "Grade": 0.01,
+              "Columns_for_order": ["Домашние задания (проходной балл 40)",
+                                    "Учебные задания (проходной балл 40)",
+                                    "Промежуточный контроль (проходной балл 40)",
+                                    "Экзамен (проходной балл 40)",
+                                    "Итоговый балл"],
+              "Columns_for_report": ["Email",
+                                     "Homework (Avg)",
+                                     "Lab (Avg)",
+                                     "Midterm Exam",
+                                     "Final Exam",
+                                     "Grade"],
+              "Sheet_name": "Soft Skill РТФ"
+              }
 
 systeng = {"Задания (Avg)": 0.002,
            "Практика (Avg)": 0.004,
@@ -1161,6 +1161,7 @@ LIST_COURSES = [
     'INFENG+spring_2021_net',
     'INTPR+spring_2021',
     'INTROBE+spring_2021',
+    'INTROBE+spring_2021_net',
     'ITS+spring_2021',
     'LEGAL+spring_2021',
     'LifeSafety+spring_2021',
