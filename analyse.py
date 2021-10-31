@@ -1,5 +1,5 @@
 from loguru import logger
-from datetime import date
+from datetime import date, time, timedelta
 from os import listdir
 import pandas as pnd
 import grade_settings as gs
@@ -20,6 +20,7 @@ def get_report_list(directory: str, report_type='grade') -> dict:
     :return: Cловарь, где ключом является шифр курса (прим. ecos_fall2020net ), значение полное имя файла с отчетом
     """
     file_list = listdir(directory)
+    file_list.sort(reverse=False)
     dict_file = dict()
     x_end = -3  # Делаем срез для названия в отчете Grade Report
 
@@ -140,9 +141,16 @@ def get_report_settings(request_file: str, statement_type: str):
         grade_report_df = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY + '/' + grade_report_file)  # DF файла выгрузки
         columns_list = get_columns(grade_report_df.columns.tolist())  # получаем список всех столбцов с оценками
 
-        grade_settings = {"Columns_for_order": columns_list,  # создаем словарь настроек для всех столбцов
-                          "Columns_for_report": columns_list,
-                          }
+        crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
+        grade_cipher = "_".join(crs_request_df.iloc[9, 1].split(sep='_')[:-1]).casefold()  # Берем шифр курса
+        try:
+            grade_settings = {"Columns_for_order": columns_list,  # создаем словарь настроек для всех столбцов
+                              "Columns_for_report": columns_list,
+                              "Sheet_name": gs.courses[grade_cipher]["Sheet_name"],
+                              }
+        except KeyError:
+            logger.error(f'Нет словаря с настройками для курса {grade_cipher.upper()} в grade_settings.py')
+            return 0  # обработка отсутствия словаря с настройками
 
         return grade_settings
 
@@ -183,7 +191,7 @@ def make_grade_column(course_order: pnd.DataFrame,  # DataFrame заявки н�
             else:
                 tst = float(grade_report[grade_report["Email"] == email][col_name].iloc[0])
                 digit = tst / rate
-                grade_list.append(int(digit.__round__(0)))  # Округляем до целого значения
+                grade_list.append(int(digit.__round__(1)))  # Округляем до целого значения
         else:
             grade_list.append("Нет на курсе")  # Если нет совпадения по адресу электронной почты
     return grade_list
@@ -283,21 +291,21 @@ def get_statement(file_name: str, statement_type: str):
 
     if statement_type == 'full':  # Полный отчет
         for x, y in zip(gr_settings["Columns_for_report"][1:], gr_settings["Columns_for_order"][1:]):
-            test_list = make_grade_column(course_request_df, grade_report_df, x, 0.01)
+            test_list = make_grade_column(course_request_df, grade_report_df, x, 0.01).__round__(1)
             course_request_df[y] = test_list
     elif statement_type == 'proctor':  # Отчет с прокторингом
         for x, y in zip(gr_settings["Columns_for_report"][1:], gr_settings["Columns_for_order"]):
             if '_Status' in x:
                 test_list = make_status_column(course_request_df, exam_results_df, x)
             else:
-                test_list = make_grade_column(course_request_df, grade_report_df, x, gr_settings[x])
+                test_list = make_grade_column(course_request_df, grade_report_df, x, gr_settings[x]).__round__(1)
             course_request_df[y] = test_list
     else:  # Короткий и средний отчеты
         for x, y in zip(gr_settings["Columns_for_report"][1:], gr_settings["Columns_for_order"]):
             test_list = make_grade_column(course_request_df, grade_report_df, x, gr_settings[x])
             course_request_df[y] = test_list
 
-    course_request_df.to_excel(dir_file_statement, index=False)
+    course_request_df.to_excel(dir_file_statement, sheet_name=gr_settings["Sheet_name"], index=False)
     logger.info(f'{file_name.rstrip(".xlsx")}_{statement_type}_{grade_date}.xlsx - OK!')
 
 
@@ -400,6 +408,7 @@ def get_proctor_report(request_file: str):
 
     # Рассчитываем поле "прогресс" и добавляем его в таблицу с grade report
     rate = 0
+
     for col in gr_settings['Columns_for_report'][1:-2]:
         rate += gr_settings[col]
     report_df['Прогресс в БРС'] = ((report_df[gr_settings['Columns_for_report'][1:-2]].sum(axis=1))/rate).__round__(0)
@@ -431,7 +440,7 @@ def get_proctor_report(request_file: str):
             result_df[column].fillna(report_settings[column]*-1, inplace=True)
             result_df[column].replace('Not Available', report_settings[column]*-2, inplace=True)
             result_df[column] = result_df[column].astype('float')
-            result_df[column] = (result_df[column] / report_settings[column]).__round__(0)
+            result_df[column] = (result_df[column] / report_settings[column]).__round__(1)
 
             result_df[column].replace(-1, 'Нет на курсе', inplace=True)
             result_df[column].replace(-2, 'Не доступно', inplace=True)
@@ -444,14 +453,180 @@ def get_proctor_report(request_file: str):
     result_df.to_excel(dir_file_statement, index=False)
     logger.info(f'{request_file.rstrip(".xlsx")}_new_proctor_{grade_date}.xlsx - OK!')
 
+def create_requests(file: str):
+    """
+    Функция по почтам и шифрам запуска курса формирует файлы запроса.
+    Требуется наличие файла tmp.xlsx папкой выше с шаблоном первого листа файла запроса
+    """
+    df_template = pnd.read_excel('tmp.xlsx', sheet_name=0)
+    try:
+        df_list = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file, sheet_name=0)
+    except:
+        logger.error(f'Нет файла запроса {file}')
+        return -1
+    df_list = df_list.sort_values(['session'], ascending=[False])
+    df_list.rename(columns={'upn (e-mail)': 'Email'}, inplace=True)
+    df_list['Email'] = df_list['Email'].str.lower()
+    for i in df_list.groupby('session'):
+        df_tmp = i[1]
+        try:
+            grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[i[0]]  # файл выгрузки
+        except KeyError:
+            logger.error(f'Нет файла Grade_Report для запроса {i[0]}')
+            return -2
+        try:
+            df_grade = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY + '/' + grade_report_file, sep=',')
+        except:
+            logger.error(f'Нет файла отчета {grade_report_file}')
+            return -3
+
+        # слияние
+        df_grade = df_grade.loc[df_grade['Email'].isin(df_tmp['Email'])]
+
+        # с добавлением полей - нужно для поиска
+        # df_grade['fio'] = df_grade['Last Name'] + ' ' + df_grade['First Name'] + ' ' + df_grade['Second Name']
+        # df_tmp1 = df_grade.sort_values(['Email'], ascending=[False])
+        # df_full = pnd.merge(df_tmp, df_grade[
+        #     ['fio', 'Student ID', 'Email', 'Username', 'Last Name', 'First Name', 'Second Name', 'Enrollment Status', 'Grade percent']],
+        #                     on='Email',
+        #                     how='left')
+
+        # без доавления полей
+        df_full = df_tmp
+
+        df_full.rename(columns={'Email': 'Адрес электронной почты'}, inplace=True)
+        # print(df_full.head(5))
+        df_template.iloc[9,1] = i[0]
+        writer = pnd.ExcelWriter(f'{gs.REQUESTS_DIRECTORY}/{i[0]}_req.xlsx', engine='xlsxwriter')
+        df_template.to_excel(writer, sheet_name='main', index=False)
+        df_full.to_excel(writer, sheet_name='list', index=False)
+        writer.save()
+        writer.close()
+        logger.info(f'{i[0]}_req.xlsx: найдено {len(df_full.index)}')
+
+def search_by_fio(file: str):
+    """
+    Функция делает поиск учеток в grade report по полному совпадению ФИО из файла запроса
+    """
+    # файл запроса
+    try:
+        df_list = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file, sheet_name=1)
+        df_list_course = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file, sheet_name=0)
+    except:
+        logger.error(f'Нет файла запроса {file}')
+        return -1
+    session_course = df_list_course.iloc[9, 1]
+    df_list.rename(columns={'Адрес электронной почты': 'Email'}, inplace=True)
+    df_list['Email'].fillna('', inplace=True)
+    df_email = df_list.loc[df_list['Email'] != '']
+    df_email = df_email[['Email']]
+    df_email = df_email.drop_duplicates()
+    df_list['Отчество'].fillna('', inplace=True)
+    df_list['Email'].fillna('', inplace=True)
+    df_list = df_list.loc[df_list['Email'] == '']
+    df_list['fio'] = df_list["Фамилия"] + df_list["Имя"] + df_list["Отчество"]
+    df_list['fio'] = df_list['fio'].str.lower()
+    df_list['fio'] = df_list['fio'].str.replace('ё', 'е', regex=False)
+    df_list['fio'] = df_list['fio'].str.replace(' ', '', regex=False)
+    df_list = df_list.drop_duplicates(subset=['fio'], keep=False)
+    df_list = df_list.set_index(['fio'])
+
+    # подготовка grade report
+    try:
+        df_grade = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY + '/' + get_grade_report_file(file), sep=',')
+    except:
+        logger.error(f'Нет файла отчета {get_grade_report_file(file)}')
+        return -2
+    df_grade['Last Name'].fillna('', inplace=True)
+    df_grade['First Name'].fillna('', inplace=True)
+    df_grade['Second Name'].fillna('', inplace=True)
+    df_grade['fio'] = df_grade['Last Name'] + df_grade['First Name'] + df_grade['Second Name']
+    df_grade['fio'] = df_grade['fio'].str.lower()
+    df_grade['fio'] = df_grade['fio'].str.replace('ё', 'е', regex=False)
+    df_grade['fio'] = df_grade['fio'].str.replace(' ', '', regex=False)
+    df_grade = df_grade.drop_duplicates(subset=['fio'], keep=False)
+    df_grade = df_grade.set_index(['fio'])
+
+    # слияние
+    df_grade = df_grade.loc[df_grade['Email'].isin(df_email['Email'])]
+    df_full = pnd.merge(df_list, df_grade[
+        ['Student ID', 'Username', 'Email', 'Last Name', 'First Name', 'Second Name', 'Grade percent']], on='fio',
+                       how='left')
+    df_full = df_full.loc[pnd.isna(df_full['Email_y']) == False]
+    df_full.to_excel(f'{gs.STATEMENTS_DIRECTORY}/{session_course}_fio.xlsx', index=False)
+    logger.info(f'{session_course}_fio.xlsx: найдено {len(df_full.index)}')
+
+def change_scores():
+    df = pnd.read_excel('./Book1.xlsx', sheet_name=0)
+    df = df.sort_values(by='course')
+    # driver = make_web_driver()
+    # login(driver)
+
+    for i in range(len(df)-1):
+        score = df.at[i, 'scores']
+        logname = df.at[i, 'logname']
+        block = df.at[i, 'block']
+        course_name = df.at[i, 'course']
+        print(score, logname, block, course_name)
+        # course_url = f'https://courses.openedu.ru/courses/course-v1:urfu+{course_name}/instructor#view-student_admin'
+        # print(course_url)
+        # print(course_name)
+        # driver.get(course_url)
+        # driver.set_window_size(1920, 1022)
+
+    #     WebDriverWait(driver, 2000).until(
+    #         expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, '#set-extension > p:nth-child(7)')))
+    #     driver.find_element(By.NAME, "score-select-single").send_keys(score)
+    #     driver.find_element(By.NAME, "student-select-grade").send_keys(logname)
+    #     driver.find_element(By.NAME, "problem-select-single").send_keys(block)
+    #     driver.find_element(By.NAME, "override-problem-score-single").click()
+    #
+    # driver.close()
+
+def report4certificates():
+    """
+    Функция генерирует csv с информацией о баллах и ссылках на сертификат для загрузки на опенеду
+    формат результата:
+    ivanov,ivanov@example.com,Иванов,Иван,Иванович,85,https://cdn.openedu.ru/fd95ff/85d0d1df/docs/certificate.pdf
+    Название файла в виде <код курса>_<код сессии>.csv
+    """
+    df_spam = pnd.read_excel("certificate_spam.xlsx")
+    df1 = df_spam.sort_values(by=['course', 'session'])
+    df1 = df1.reset_index(drop=True)
+    old_course = ""
+    old_session = ""
+    lst_row = ""
+    for row in df1.index:
+        if old_course == "":
+            old_course = str(df1.loc[row]["course"])
+            old_session = str(df1.loc[row]["session"])
+            handle = open(f'{old_course}_{old_session}.csv', "w")
+        if str(df1.loc[row]['course']) != old_course or str(df1.loc[row]['session']) != old_session:
+            handle.close()
+            old_course = str(df1.loc[row]["course"])
+            old_session = str(df1.loc[row]["session"])
+            handle = open(f'{old_course}_{old_session}.csv', "w")
+        lst_row = f'{str(df1.loc[row]["login"])},{str(df1.loc[row]["full_name"])},{str(df1.loc[row]["fam"])},{str(df1.loc[row]["nam"])},{str(df1.loc[row]["otc"])},{str(df1.loc[row]["grade"])},{str(df1.loc[row]["link"])}'
+        handle.write(lst_row + '\n')
+    handle.close()
 
 if __name__ == "__main__":
-    for file in gs.REQUESTS_FILES:
-        if '.~' in file or '~$' in file:  # игнорируем временные файлы, которые создаются при открытии
-            continue
-        else:
-            # get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
-            get_proctor_report(file)
+    # for file in gs.REQUESTS_FILES:
+    #     if '.~' in file or '~$' in file:  # игнорируем временные файлы, которые создаются при открытии
+    #         continue
+    #     else:
+    #         print(file)
+    #         # get_statement(file, 'middle')  # statement_type= mini|middle|full|proctor
+    #         # search_by_fio(file)
+    #         if file != 'tmp.xlsx' and file != 'tmp1.xlsx':
+    #             # get_proctor_report(file)
+    #             get_statement(file, statement_type='middle')
 
-    # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='middle')  # Заказ конкретного отчета
-    # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='full')  # Заказ конкретного отчета
+    get_statement('tmp.xlsx', statement_type='middle')
+    # get_proctor_report('Crithink_spring2021_fio.xlsx')
+    # get_statement('tmp.xlsx', statement_type='middle')
+    # search_by_fio('tmp.xlsx')
+    # change_scores()
+    # create_requests('tmp1.xlsx')
+
+    # report4certificates()
