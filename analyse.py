@@ -1,6 +1,7 @@
 from loguru import logger
 from datetime import date, time, timedelta
 from os import listdir
+import os
 import pandas as pnd
 import grade_settings as gs
 
@@ -469,6 +470,7 @@ def create_requests(file: str):
     df_list['Email'] = df_list['Email'].str.lower()
     for i in df_list.groupby('session'):
         df_tmp = i[1]
+        logger.info('В обработке ' + i[0])
         try:
             grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[i[0]]  # файл выгрузки
         except KeyError:
@@ -611,18 +613,25 @@ def report4certificates():
     handle.close()
 
 if __name__ == "__main__":
+    # i: int = 0
     # for file in gs.REQUESTS_FILES:
+    #     i += 1
     #     if '.~' in file or '~$' in file:  # игнорируем временные файлы, которые создаются при открытии
     #         continue
     #     else:
-    #         print(file)
+    #         logger.info('В обработке ' + file)
     #         # get_statement(file, 'middle')  # statement_type= mini|middle|full|proctor
     #         # search_by_fio(file)
     #         if file != 'tmp.xlsx' and file != 'tmp1.xlsx':
     #             # get_proctor_report(file)
-    #             get_statement(file, statement_type='middle')
+    #             try:
+    #                 get_statement(file, statement_type='middle')
+    #                 logger.info(str(i) + '/' + str(len(gs.REQUESTS_FILES)))
+    #             except:
+    #                 logger.warning('Проблема с ' + file)
 
-    get_statement('tmp.xlsx', statement_type='middle')
+    # get_statement('tmp.xlsx', statement_type='middle')
+    get_statement('IEC6185_fall2020_req.xlsx', statement_type='middle')
     # get_proctor_report('Crithink_spring2021_fio.xlsx')
     # get_statement('tmp.xlsx', statement_type='middle')
     # search_by_fio('tmp.xlsx')

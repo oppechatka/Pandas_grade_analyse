@@ -76,6 +76,53 @@ def grade_download(course_name: str, w_driver):
     w_driver.get('https://openedu.ru/')
 
 
+def grade_download_urfu(course_name: str, w_driver):
+    """
+    Функция переходит на страницу "Преподаватель", подраздел "Скачивание данных". Прокручивает страницу до
+    таблицы с выгрузками и ожидает ее загрузки. Затем находит все элементы с классом "file-download-link", и
+    записывает их в список.
+
+    Проходим циклом по списку отсекая расширенные отчеты с содержанием слова Problem и скачиваем первый сверху
+    отчет Grade Report. Если дата не является сегодняшней, то файл скачает, но выведется предупреждение, что файл
+    не является актуальным.
+
+    Если отчета Grade Report нет в списке, то выводится предупреждение "Нет отчета Grade Report"
+
+    :param course_name: Шифр курса (прим. ARCHC+fall_2020)
+    :param w_driver: WebDriver с которого ведется работа
+    """
+    course_url = f'https://courses.openedu.urfu.ru/courses/course-v1:UrFU+{course_name}/instructor#view-data_download'
+    TDAY = str(datetime.date.today().strftime('%d.%m.%Y'))  # сегодняшняя дата для сравнения
+
+    w_driver.get(course_url)
+    w_driver.execute_script("window.scrollTo(0,1200)")
+    WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
+        (By.CLASS_NAME, "file-download-link")))
+
+    # Поиск строки, где есть grade report
+    file_list = w_driver.find_elements_by_class_name('file-download-link')
+    flag = 1
+    for i in file_list:
+        if 'problem' in i.text:
+            continue
+        elif 'grade_report' in i.text:
+            grade_date_list = i.text.split(sep='_')[-1].split(sep='-')[2::-1]  # получаем дату отчета из имени файла
+            grade_date = '.'.join(grade_date_list)  # дата скачиваемого Grade Report
+
+            if TDAY != grade_date:
+                logger.warning(f'Дата скачиваемого отчета Grade_Report для курса'
+                               f' {course_name} не является актуальной')  # дата не актуальная
+
+            w_driver.find_element_by_link_text(i.text).click()
+            flag -= 1
+            logger.info(i.text)
+            break
+    if flag == 1:
+        logger.warning('Нет отчета Grade Report для курса: ' + course_name)
+
+    w_driver.get('https://courses.openedu.urfu.ru/')
+
+
 def exam_results_download(course_name: str, w_driver):
     """
     Функция переходит на страницу "Преподаватель", подраздел "Скачивание данных". Прокручивает страницу до
@@ -199,7 +246,6 @@ def make_web_driver(type_driver: str = 'none'):
     :return: WebDriver
     """
     profile = webdriver.FirefoxProfile()
-
     # Установка директории для скачивания
     profile.set_preference('browser.download.folderList', 2)
 
@@ -211,7 +257,8 @@ def make_web_driver(type_driver: str = 'none'):
         profile.set_preference("browser.download.dir", GS.DEFAULT_DOWNLOAD_DIR)
 
     profile.set_preference('browser.download.manager.showWhenStarting', False)
-    profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/csv')
+    profile.set_preference('browser.helperApps.neverAsk.saveToDisk',
+                           "text/csv, application/octet-stream")  # хз на кой octet-stream, но работает только с ним
     driver = webdriver.Firefox(profile)
 
     return driver
@@ -225,7 +272,7 @@ def login(web_driver):
     """
     # Авторизация на сайте openedu.ru
     web_driver.get('https://sso.openedu.ru/login/')
-    web_driver.set_window_size(1920, 1015)
+    web_driver.set_window_size(1280, 720)
     WebDriverWait(web_driver, 30000).until(expected_conditions.presence_of_element_located((By.ID, 'id_password')))
     web_driver.find_element_by_id('id_username').send_keys(GS.USERNAME)
     web_driver.find_element_by_id('id_password').send_keys(GS.PASSWORD)
@@ -299,8 +346,28 @@ def download_grade_report():
     """
     driver = make_web_driver('grade_report')
     login(driver)
+    i: int = 0
     for course in GS.LIST_COURSES:
         grade_download(course, driver)
+        i += 1
+        logger.info(str(i) + "/" + str(len(GS.LIST_COURSES)))
+    driver.close()
+
+
+def download_grade_report_urfu():
+    """
+    Функция создает WebDriver с настрйоками для скачивания отчета Grade report, проходит по списку курсов и в каждом
+    из них пытается скачать Grade Report с помощью функции grade_download. Затем завершает работу WebDriver.
+    """
+    driver = make_web_driver('grade_report')
+    login_urfu(driver)
+    if driver.find_element_by_class_name('cc-dismiss'):
+        driver.find_element_by_class_name('cc-dismiss').click()
+    i: int = 0
+    for course in GS.LIST_COURSES_URFU:
+        grade_download_urfu(course, driver)
+        i += 1
+        logger.info(str(i) + "/" + str(len(GS.LIST_COURSES_URFU)))
     driver.close()
 
 
@@ -550,6 +617,24 @@ def get_info():
         driver.get('https://openedu.ru')
     driver.close()
 
+def get_info_urfu():
+    driver = make_web_driver()
+    login_urfu(driver)
+    driver.set_window_size(1280, 850)
+    sum: int = 0
+    for i in GS.LIST_COURSES:
+        course_url = f'https://courses.openedu.urfu.ru/courses/course-v1:UrFU+{i}/instructor#view-course_info'
+        driver.get(course_url)
+        WebDriverWait(driver, 30).until(expected_conditions.invisibility_of_element((By.CLASS_NAME, 'ui-loading')))
+
+        course_name = driver.find_element_by_class_name("course-name").text
+        count_list = driver.find_element_by_xpath('//*[@id="course_info"]/div[1]/table/tbody/tr[5]/td/strong').text
+        sum += int(count_list)
+        print(course_name + ";" + i + ";" + count_list)
+        driver.get('https://courses.openedu.urfu.ru/dashboard')
+    print("Количество", sum)
+    driver.close()
+
 
 def get_place_restore():
     driver = make_web_driver()
@@ -708,16 +793,71 @@ def get_struct_urfu(course_name: str, start_course: str = "09/05/2021", deadline
 
 
 GS.LIST_COURSES = [
-    'MCS+fall_2021',
-    'ITS+fall_2021',
-    'PhysCult+fall_2021',
+    'IT1907+summer_2021',
+    'td21_en+2021',
+    'td21_in+2021',
+    'PUBLSPEAK+spring_2021',
+    'GREEC+spring_2021',
+    'CPESOC.c.Hu-0128+spring_2021_1',
+    'td21_mi+2021',
+    'EVK+spring_2021',
+    'td21_sg+2021',
+    'FILOSOFBASE+spring_2021',
+    'td21_eu+2021',
+    'HSEM.m.BM-0020+2014-2021',
+    'PUBLSPEAK+fall_2021',
+    'IHA.b.Hi-0058+fall_2021',
+    'ISGB.m.BM-0089+fall_2021',
+    'GREEC+fall_2021',
+    'CPESOC.c.Hu-0128+fall_2021',
+    'SQLBASICS+spring_2021',
+    'PROMPROG+fall_2021',
+    'PROJ+fall_2021',
+    'ISGB.b.SS-0028+fall_2021',
+    'ESI+fall_2021',
+    'DIGTRANSF+spring_2021',
+    'IHA.b.Hu-0061+fall_2021',
+    'PHISMECH+fall_2021',
+    'FILOSOFBASE+fall_2021',
+    'UralENIN.b.Ch-0010+fall_2021',
+    'IND4.0+spring_2021',
+    'ISGB.m.EF-0043+fall_2021',
+    'IMMB.b.BM-0087+fall_2021',
+    'EXPCTRL+fall_2021',
+
+    # 'Inclus_M1+fall_2021',
+    # 'Inclus_M2+fall_2021',
+    # 'PYDNN+fall_2021',
+    # 'SMNGM+fall_2021',
+    # 'ECOS+fall_2021',
+    # 'chryso+fall_2021',
+    # 'TEPL+fall_2021',
+    # 'TECO+fall_2021',
+    # 'INTPR+fall_2021',
+    # 'MANEGEMACH+fall_2021',
+    # 'PhysCult+fall_2021',
+    # 'EFFSOLUTION+fall_2021',
+    # 'ELECD+fall_2021',
+
+    # замощанским
+    # 'HIST_VIEW+fall_2021',
+    # 'PHILOSOPHY+fall_2021',
+    # 'PHILS+fall_2021',
+    # 'PHILSCI+fall_2021',
+    # 'SoftSkills+fall_2021',
+    # 'PersonalSafety+fall_2021',
+
+    # 'PhysCult+fall_2021',
+    # 'MCS+fall_2021',
+    # 'ITS+fall_2021',
 ]
 
 if __name__ == '__main__':
     # logger.add("_debug.log", format="{time} {level} {message}", level="DEBUG", rotation="10 RB", compression="zip")
     # make_grade_report_order()   # Заказ отчета Grade Report
     # make_exam_results_order()   # Заказ отчета Exam Results
-    download_grade_report()  # Скачивание отчета Grade Report
+    # download_grade_report()  # Скачивание отчета Grade Report
+    # download_grade_report_urfu()  # Скачивание отчета Grade Report
     # download_exam_results()  # Скачивание отчета Exam Results
     # change_deadlines('RUBSCULT+fall_2020', 'semen.kazancev.gi@gmail.com', '01/31/2021 23:30')
     # get_struct('PYDNN+spring_2021')
@@ -728,6 +868,7 @@ if __name__ == '__main__':
     # analyse.get_statement('tmp.xlsx', statement_type='middle')
     # analyse.get_proctor_report('tmp.xlsx')
     # get_struct("CSHARP+fall_2021_net")
-    # get_struct_urfu("ISGB.b.SS-0028+fall_2021", start_course="09/05/2021", deadline="01/10/2022")
+    # get_struct_urfu("ISGB.m.BM-0089+fall_2021", start_course="09/05/2021", deadline="01/10/2022")
     # get_info()
+    get_info_urfu()
     # get_place_restore()

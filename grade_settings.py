@@ -542,17 +542,20 @@ legal = {"Тест по разделу (Avg)": 0.008,
          "Sheet_name": "Норм.-прав. обесп.онл.обуч."
          }
 
-lifesafety = {"Тестовое задание (Avg)": 0.003,
-              "Практическое задание (Avg)": 0.003,
+lifesafety = {"Тестовое задание (Avg)": 0.002,
+              "Практическое задание (Avg)": 0.002,
+              "Рубежный контроль (Avg)": 0.002,
               "Итоговый контроль (Avg)": 0.004,
               "Grade": 0.01,
               "Columns_for_order": ["Тесты (проходной балл 40)",
                                     "Практическое задание (проходной балл 40)",
+                                    "Рубежный контроль (проходной балл 40)",
                                     "Экзамен (проходной балл 40)",
                                     "Итоговый балл"],
               "Columns_for_report": ["Email",
                                      "Тестовое задание (Avg)",
                                      "Практическое задание (Avg)",
+                                     "Рубежный контроль (Avg)",
                                      "Итоговый контроль (Avg)",
                                      "Grade"],
               "Sheet_name": "БЖД"
@@ -692,7 +695,7 @@ personalsafety = {"Тестирование к теме (Avg)": 0.0032,
                                          "Интерактивное задание (Avg)",
                                          "Итоговое тестирование (Avg)",
                                          "Grade"],
-                  "Sheet_name": "Персональная безопасность"
+                  "Sheet_name": "Личная безопасность"
                   }
 
 philosophy = {"Тест (Avg)": 0.002,
@@ -1164,24 +1167,43 @@ psihology = {"Тестовое задание (Avg)": 0.01,
           "Sheet_name": "Психология"
           } # психология
 
-isgb = {"Учебное задание (Avg)": 0.01,
-          "Тест для самоконтроля (Avg)": 0.01,
+isgb = {  "Учебное задание (Avg)": 0.01,
+          "Тест промежуточного контроля (Avg)": 0.01,
           "Кейс (Avg)": 0.01,
-          "Итоговое контрольное задание": 0.01,
+          "Итоговый контроль": 0.01,
           "Grade": 0.01,
           "Columns_for_order": ["Учебное задание",
-                                "Тест для самоконтроля",
+                                "Тест промежуточного контроля",
                                 "Кейс",
                                 "Итоговое контрольное задание",
                                 "Итоговый балл"],
           "Columns_for_report": ["Email",
                                  "Учебное задание (Avg)",
-                                 "Тест для самоконтроля (Avg)",
+                                 "Тест промежуточного контроля (Avg)",
                                  "Кейс (Avg)",
-                                 "Итоговое контрольное задание",
+                                 "Итоговый контроль",
                                  "Grade"],
           "Sheet_name": "Экон.общ.сектора"
           } # экономика общественного сектора
+
+staffs = {"Тест для самоконтроля (Avg)": 0.01,
+          "Учебное задание (Avg)": 0.01,
+          "Контрольное задание (Avg)": 0.01,
+          "Итоговый контроль": 0.01,
+          "Grade": 0.01,
+          "Columns_for_order": ["Тест для самоконтроля",
+                                "Учебное задание",
+                                "Контрольное задание",
+                                "Итоговый контроль",
+                                "Итоговый балл"],
+          "Columns_for_report": ["Email",
+                                 "Тест для самоконтроля (Avg)",
+                                 "Учебное задание (Avg)",
+                                 "Контрольное задание (Avg)",
+                                 "Итоговый контроль",
+                                 "Grade"],
+          "Sheet_name": "Кадр.политика и кадр.аудит"
+          } # кадровая политика
 
 greec = {"Учебное задание (Avg)": 0.01,
           "Итоговый контроль": 0.01,
@@ -1195,6 +1217,26 @@ greec = {"Учебное задание (Avg)": 0.01,
                                  "Grade"],
           "Sheet_name": "Культура Эллады"
           } # культура эллады
+
+iec6185 = {"Учебное задание (Avg)": 0.01,
+          "Контрольное задание (Avg)": 0.01,
+          "Промежуточный контроль (Avg)": 0.01,
+          "Итоговый контроль": 0.01,
+          "Grade": 0.01,
+          "Columns_for_order": ["Учебное задание",
+                                "Контрольное задание",
+                                "Промежуточный контроль",
+                                "Итоговый контроль",
+                                "Итоговый балл"],
+          "Columns_for_report": ["Email",
+                                 "Учебное задание (Avg)",
+                                 "Контрольное задание (Avg)",
+                                 "Промежуточный контроль (Avg)",
+                                 "Итоговый контроль",
+                                 "Grade"],
+          "Sheet_name": "МЭК 61850"
+
+          }  # Применение технологий МЭК 61850 в электроэнергетике - для ДПО
 
 courses = {
     'archc': archc,  # Основы архитектуры и строительных конструкций
@@ -1260,87 +1302,89 @@ courses = {
     'geoinf': geoinf,    # Геоинформационные системы в развитии территорий
     'publspeak': publspeak, # искусство публичных выступления
     'iha.b.hi-0058': hist_urfu, # история
-    'spesoc.c.hu-0128': spesoc,  # личная эффективность
+    'cpesoc.c.hu-0128': spesoc,  # личная эффективность
     'isgb.b.ss-0028': politology,  # политология
     'iha.b.hu-0061': psihology,  # психология
     'isgb.m.ef-0043': isgb,  # экономика общественного сектора
     'greec': greec,  # культура эллады
+    'isgb.m.bm-0089': staffs, # кадровая политика
+    'iec6185': iec6185, # МЭК для ДПО
 }
 
 LIST_COURSES = [
-    # 'ANALYTCHEM2+fall_2021',  # новый, настроить
-    # 'ARCHC+fall_2021',
-    # 'BIOECO+fall_2021',
-    # 'CALC+fall_2021',
-    # 'CELLBIO+fall_2021',
-    # 'CHEMSO+fall_2021',
-    # 'chryso+fall_2021',
-    # 'Crithink+fall_2021',
-    # 'CSHARP+fall_2021',
-    # 'CSHARP+fall_2021_net',
-    # 'DATAINF+fall_2021',
-    # 'DesignBasics+fall_2021',
-    # 'ECOEFF+fall_2021',
-    # 'ECOS+fall_2021',
-    # 'EDUBASE+fall_2021',
-    # 'EFFSOLUTION+fall_2021',
-    # 'ELB+fall_2021',
-    # 'ELECD+fall_2021',
-    # 'engforinclusb+fall_2021',  # новый, настроить
-    # 'ENGM+fall_2021',
-    # 'GEOM+fall_2021',
-    # 'GOVBUSINESS+fall_2021',
-    # 'HIST_VIEW+fall_2021',
-    # 'HIST+fall_2021',
-    # 'HIST+fall_2021_net',
-    # 'Inclus_M1+fall_2021',
-    # 'Inclus_M2+fall_2021',
-    # 'INFENG+fall_2021',
-    # 'INFENG+fall_2021_net',
-    # 'INTPR+fall_2021',
-    # 'INTPR+fall_2021_net',
-    # 'INTROBE+fall_2021',
-    # 'ITS+fall_2021',
-    # 'LEGAL+fall_2021',
-    # 'LifeSafety+fall_2021',
-    # 'LifeSafety+fall_2021_net',
-    # 'LineAlg+_fall_2021',
-    # 'MANEGEMACH+fall_2021',
-    # 'MCS+fall_2021',
-    # 'METHODS+fall_2021',
-    # 'METR+fall_2021',
-    # 'METR+fall_2021_net',
-    # 'NATCULT+fall_2021',
-    # 'NUCMED+fall_2021',
-    # 'PersonalSafety+fall_2021',
-    # 'PHILOSOPHY+fall_2021',
-    # 'PHILS+fall_2021',
-    # 'PHILSCI+fall_2021',
-    # 'PHILSCI+fall_2021_net',
-    # 'PhysCult+fall_2021',
-    # 'PRGRMM+fall_2021',
-    # 'PRGRMM+fall_2021_net',
-    # 'PROJ+fall_2021',
-    # 'PSYMEDIA+fall_2021',
-    # 'PYAP+fall_2021',
-    # 'PYDNN+fall_2021',
-    # 'RUBSCULT+fall_2021',
-    # 'SIGPROC+fall_2021',
-    # 'SIGPROC+fall_2021_net',
-    # 'SMNGM+fall_2021',
-    # 'SoftSkills+fall_2021',
-    # 'SoftSkills+fall_2021_net',
-    # 'SYSTENG+fall_2021',
-    # 'TECO+fall_2021',
-    # 'TELECOM+fall_2021',
-    # 'TELECOM+fall_2021_net',
+    'ANALYTCHEM2+fall_2021',  # новый, настроить
+    'ARCHC+fall_2021',
+    'BIOECO+fall_2021',
+    'CALC+fall_2021',
+    'CELLBIO+fall_2021',
+    'CHEMSO+fall_2021',
+    'chryso+fall_2021',
+    'Crithink+fall_2021',
+    'CSHARP+fall_2021',
+    'CSHARP+fall_2021_net',
+    'DATAINF+fall_2021',
+    'DesignBasics+fall_2021',
+    'ECOEFF+fall_2021',
+    'ECOS+fall_2021',
+    'EDUBASE+fall_2021',
+    'EFFSOLUTION+fall_2021',
+    'ELB+fall_2021',
+    'ELECD+fall_2021',
+    'engforinclusb+fall_2021',  # новый, настроить
+    'ENGM+fall_2021',
+    'GEOM+fall_2021',
+    'GOVBUSINESS+fall_2021',
+    'HIST_VIEW+fall_2021',
+    'HIST+fall_2021',
+    'HIST+fall_2021_net',
+    'Inclus_M1+fall_2021',
+    'Inclus_M2+fall_2021',
+    'INFENG+fall_2021',
+    'INFENG+fall_2021_net',
+    'INTPR+fall_2021',
+    'INTPR+fall_2021_net',
+    'INTROBE+fall_2021',
+    'ITS+fall_2021',
+    'LEGAL+fall_2021',
+    'LifeSafety+fall_2021',
+    'LifeSafety+fall_2021_net',
+    'LineAlg+_fall_2021',
+    'MANEGEMACH+fall_2021',
+    'MCS+fall_2021',
+    'METHODS+fall_2021',
+    'METR+fall_2021',
+    'METR+fall_2021_net',
+    'NATCULT+fall_2021',
+    'NUCMED+fall_2021',
+    'PersonalSafety+fall_2021',
+    'PHILOSOPHY+fall_2021',
+    'PHILS+fall_2021',
+    'PHILSCI+fall_2021',
+    'PHILSCI+fall_2021_net',
+    'PhysCult+fall_2021',
+    'PRGRMM+fall_2021',
+    'PRGRMM+fall_2021_net',
+    'PROJ+fall_2021',
+    'PSYMEDIA+fall_2021',
+    'PYAP+fall_2021',
+    'PYDNN+fall_2021',
+    'RUBSCULT+fall_2021',
+    'SIGPROC+fall_2021',
+    'SIGPROC+fall_2021_net',
+    'SMNGM+fall_2021',
+    'SoftSkills+fall_2021',
+    'SoftSkills+fall_2021_net',
+    'SYSTENG+fall_2021',
+    'TECO+fall_2021',
+    'TELECOM+fall_2021',
+    'TELECOM+fall_2021_net',
     'TEPL+fall_2021',
     'TheorVer+fall_2021',
     'TRIZ+fall_2021',
 ]
 
 LIST_COURSES_URFU = [
-    'PUBLSPEAK+fall_2021',  # пубоичное чего-то там
+    'PUBLSPEAK+fall_2021',  # искусство публичных выступлений
     'IHA.b.Hi-0058+fall_2021',  # история
     'CPESOC.c.Hu-0128+fall_2021',  # личная эффективность
     'ISGB.b.SS-0028+fall_2021',  # политология
@@ -1349,4 +1393,6 @@ LIST_COURSES_URFU = [
     'UralENIN.b.Ch-0010+fall_2021',  # химия
     'ISGB.m.EF-0043+fall_2021',  # экономика общественного сектора
     'GREEC+fall_2021',  # культура эллады
+    'ISGB.m.BM-0089+fall_2021', # кадровая политика
+    'IEC6185+fall_2020', # МЭК для ДПО
 ]
