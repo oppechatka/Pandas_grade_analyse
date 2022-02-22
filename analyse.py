@@ -141,9 +141,16 @@ def get_report_settings(request_file: str, statement_type: str):
         grade_report_df = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY + '/' + grade_report_file)  # DF файла выгрузки
         columns_list = get_columns(grade_report_df.columns.tolist())  # получаем список всех столбцов с оценками
 
-        grade_settings = {"Columns_for_order": columns_list,  # создаем словарь настроек для всех столбцов
-                          "Columns_for_report": columns_list,
-                          }
+        crs_request_df = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + request_file, 0)  # Берем первый лист заявки
+        grade_cipher = "_".join(crs_request_df.iloc[9, 1].split(sep='_')[:-1]).casefold()  # Берем шифр курса
+        try:
+            grade_settings = {"Columns_for_order": columns_list,  # создаем словарь настроек для всех столбцов
+                              "Columns_for_report": columns_list,
+                              "Sheet_name": gs.courses[grade_cipher]["Sheet_name"],
+                              }
+        except KeyError:
+            logger.error(f'Нет словаря с настройками для курса {grade_cipher.upper()} в grade_settings.py')
+            return 0  # обработка отсутствия словаря с настройками
 
         return grade_settings
 
@@ -497,6 +504,53 @@ def search_by_fio(file: str):
     df_full.to_excel(f'{gs.STATEMENTS_DIRECTORY}/{session_course}_fio.xlsx', index=False)
     logger.info(f'{session_course}_fio.xlsx: найдено {len(df_full.index)}')
 
+def create_requests(file: str):
+    """
+    Функция по почтам и шифрам запуска курса формирует файлы запроса.
+    Требуется наличие файла tmp.xlsx папкой выше с шаблоном первого листа файла запроса
+    """
+    df_template = pnd.read_excel('tmp.xlsx', sheet_name=0)
+    try:
+        df_list = pnd.read_excel(gs.REQUESTS_DIRECTORY + '/' + file, sheet_name=0)
+    except:
+        logger.error(f'Нет файла запроса {file}')
+        return -1
+    df_list = df_list.sort_values(['session'], ascending=[False])
+    df_list.rename(columns={'upn (e-mail)': 'Email'}, inplace=True)
+    df_list['Email'] = df_list['Email'].str.lower()
+    for i in df_list.groupby('session'):
+        df_tmp = i[1]
+        try:
+            grade_report_file = get_report_list(gs.GRADE_REPORTS_DIRECTORY)[i[0]]  # файл выгрузки
+        except KeyError:
+            logger.error(f'Нет файла Grade_Report для запроса {i[0]}')
+            return -2
+        try:
+            df_grade = pnd.read_csv(gs.GRADE_REPORTS_DIRECTORY + '/' + grade_report_file, sep=',')
+        except:
+            logger.error(f'Нет файла отчета {grade_report_file}')
+            return -3
+
+        # слияние
+        df_grade = df_grade.loc[df_grade['Email'].isin(df_tmp['Email'])]
+        # df_grade['fio'] = df_grade['Last Name'] + ' ' + df_grade['First Name'] + ' ' + df_grade['Second Name']
+        # df_tmp1 = df_grade.sort_values(['Email'], ascending=[False])
+        # df_full = pnd.merge(df_tmp, df_grade[
+        #     ['fio', 'Student ID', 'Email', 'Username', 'Last Name', 'First Name', 'Second Name', 'Enrollment Status', 'Grade percent']],
+        #                     on='Email',
+        #                     how='left')
+        df_full = df_tmp
+        df_full.rename(columns={'Email': 'Адрес электронной почты'}, inplace=True)
+        # print(df_full.head(5))
+        df_template.iloc[9,1] = i[0]
+        writer = pnd.ExcelWriter(f'{gs.REQUESTS_DIRECTORY}/{i[0]}_req.xlsx', engine='xlsxwriter')
+        df_template.to_excel(writer, sheet_name='main', index=False)
+        df_full.to_excel(writer, sheet_name='list', index=False)
+        writer.save()
+        writer.close()
+        logger.info(f'{i[0]}_req.xlsx: найдено {len(df_full.index)}')
+
+
 
 if __name__ == "__main__":
     for file in gs.REQUESTS_FILES:
@@ -507,8 +561,9 @@ if __name__ == "__main__":
             # get_statement(file, 'middle')  # statement_type= mini|middle|full|proctor
             # get_statement(file, 'full')  # statement_type= mini|middle|full|proctor
             # get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
-            # get_proctor_report(file)
-            search_by_fio(file)     # Поиск учеток по фио
+            get_proctor_report(file)
+            # search_by_fio(file)     # Поиск учеток по фио
+    # create_requests("tm1.xlsx")
 
     # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='middle')  # Заказ конкретного отчета
     # get_statement('РТФ_УИС_fall_2020.xlsx', statement_type='full')  # Заказ конкретного отчета

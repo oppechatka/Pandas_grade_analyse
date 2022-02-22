@@ -1,2 +1,9 @@
 # Project exclude paths
 /venv/
+user_settings.py
+exam_results/*.*
+grade_reports/*.*
+requests/*.*
+statements/*.*
+*.log
+tests.py
