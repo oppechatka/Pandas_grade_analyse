@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
-import analyse
+import pandas as pnd
 
 
 def count_students(course_name: str, w_driver):
@@ -431,6 +431,9 @@ def todate(txt: str):
 
 
 def get_struct(course_name: str, start_course: str = "09/05/2021", deadline: str = "01/10/2022"):
+    '''
+    задание дат открытия материалов, дедлайнов, составление html для графика открытия материалов
+    '''
     driver = make_web_driver()
     login(driver)
     driver.set_window_size(1280, 850)
@@ -603,6 +606,9 @@ def get_struct(course_name: str, start_course: str = "09/05/2021", deadline: str
 
 
 def get_info():
+    '''
+    определение количества слушателей на запусках курсов из списка LIST_COURSES
+    '''
     driver = make_web_driver()
     login(driver)
     driver.set_window_size(1280, 850)
@@ -618,11 +624,14 @@ def get_info():
     driver.close()
 
 def get_info_urfu():
+    '''
+    определение количества слушателей на запусках курсов внутренней платформы из списка LIST_COURSES_URFU
+    '''
     driver = make_web_driver()
     login_urfu(driver)
     driver.set_window_size(1280, 850)
     sum: int = 0
-    for i in GS.LIST_COURSES:
+    for i in GS.LIST_COURSES_URFU:
         course_url = f'https://courses.openedu.urfu.ru/courses/course-v1:UrFU+{i}/instructor#view-course_info'
         driver.get(course_url)
         WebDriverWait(driver, 30).until(expected_conditions.invisibility_of_element((By.CLASS_NAME, 'ui-loading')))
@@ -637,6 +646,9 @@ def get_info_urfu():
 
 
 def get_place_restore():
+    '''
+    создает список "мест" восстановления баллов для массовой обработки restore
+    '''
     driver = make_web_driver()
     login(driver)
     driver.set_window_size(1280, 850)
@@ -673,6 +685,10 @@ def get_place_restore():
 
 
 def get_struct_urfu(course_name: str, start_course: str = "09/05/2021", deadline: str = "01/01/2020"):
+    '''
+    задание дат открытия материалов, дедлайнов, составление html для графика открытия материалов
+    на внутренней платформе
+    '''
     driver = make_web_driver()
     login_urfu(driver)
     driver.set_window_size(1280, 800)
@@ -791,84 +807,103 @@ def get_struct_urfu(course_name: str, start_course: str = "09/05/2021", deadline
 
     driver.close()
 
+def load_certs():
+    '''
+    загрузка ссылок на сертификаты на openedu.ru
+    используется xlsx файл с выгрузкой из базы сертификатов
+    '''
+    df_certs = pnd.read_excel("certificate_spam.xlsx")
+    df1 = df_certs.sort_values(by=['course', 'no'], ascending=False)
+    old_course = ""
+    lst_row = ""
 
-GS.LIST_COURSES = [
-    'IT1907+summer_2021',
-    'td21_en+2021',
-    'td21_in+2021',
-    'PUBLSPEAK+spring_2021',
-    'GREEC+spring_2021',
-    'CPESOC.c.Hu-0128+spring_2021_1',
-    'td21_mi+2021',
-    'EVK+spring_2021',
-    'td21_sg+2021',
-    'FILOSOFBASE+spring_2021',
-    'td21_eu+2021',
-    'HSEM.m.BM-0020+2014-2021',
-    'PUBLSPEAK+fall_2021',
-    'IHA.b.Hi-0058+fall_2021',
-    'ISGB.m.BM-0089+fall_2021',
-    'GREEC+fall_2021',
-    'CPESOC.c.Hu-0128+fall_2021',
-    'SQLBASICS+spring_2021',
-    'PROMPROG+fall_2021',
-    'PROJ+fall_2021',
-    'ISGB.b.SS-0028+fall_2021',
-    'ESI+fall_2021',
-    'DIGTRANSF+spring_2021',
-    'IHA.b.Hu-0061+fall_2021',
-    'PHISMECH+fall_2021',
-    'FILOSOFBASE+fall_2021',
-    'UralENIN.b.Ch-0010+fall_2021',
-    'IND4.0+spring_2021',
-    'ISGB.m.EF-0043+fall_2021',
-    'IMMB.b.BM-0087+fall_2021',
-    'EXPCTRL+fall_2021',
+    driver = make_web_driver()
+    login(driver)
+    driver.get('https://openedu.ru/upd/urfu/students/certificates')
 
-    # 'Inclus_M1+fall_2021',
-    # 'Inclus_M2+fall_2021',
-    # 'PYDNN+fall_2021',
-    # 'SMNGM+fall_2021',
-    # 'ECOS+fall_2021',
-    # 'chryso+fall_2021',
-    # 'TEPL+fall_2021',
-    # 'TECO+fall_2021',
-    # 'INTPR+fall_2021',
-    # 'MANEGEMACH+fall_2021',
-    # 'PhysCult+fall_2021',
-    # 'EFFSOLUTION+fall_2021',
-    # 'ELECD+fall_2021',
+    count = len(df1)
+    i = 0
+    for row in df1.index:
+        i += 1
+        if str(df1.loc[row]['course']) != old_course:
+            # смена курса/запуска курса
+            old_course = str(df1.loc[row]["course"])
 
-    # замощанским
-    # 'HIST_VIEW+fall_2021',
-    # 'PHILOSOPHY+fall_2021',
-    # 'PHILS+fall_2021',
-    # 'PHILSCI+fall_2021',
-    # 'SoftSkills+fall_2021',
-    # 'PersonalSafety+fall_2021',
+            time.sleep(1)
 
-    # 'PhysCult+fall_2021',
-    # 'MCS+fall_2021',
-    # 'ITS+fall_2021',
-]
+            driver.find_element_by_xpath('//*[@id="filter-form"]/div[3]/span/span[1]/span').click()
+            driver.find_element_by_class_name('select2-search__field').send_keys(str(df1.loc[row]["course"]))
+            time.sleep(1.5)
+            ids = driver.find_elements_by_class_name('select2-results__option')
+            ids[0].click()
+            time.sleep(1)
+
+            driver.find_element_by_xpath('//*[@id="filter-form"]/div[5]/span/span[1]/span').click()
+            driver.find_element_by_class_name('select2-search__field').send_keys('fall_2021_net')
+            time.sleep(1)
+            ids = driver.find_elements_by_class_name('select2-results__option')
+            ids[0].click()
+            time.sleep(1)
+
+        time.sleep(1)
+        driver.find_element_by_class_name('dataTables_filter').find_element_by_class_name('input-sm').clear()
+        driver.find_element_by_class_name('dataTables_filter').find_element_by_class_name('input-sm').send_keys(str(df1.loc[row]["fio"]))
+        time.sleep(2)
+
+        idr = driver.find_elements_by_xpath('//*[@id="certificates-table"]/tbody/tr')
+
+        if len(idr) > 1:
+            logger.error(str(i) + "/" + str(count) + " " + str(df1.loc[row]["fio"]) + ' ' + str(df1.loc[row]["course"]) + ' ' + str(
+                df1.loc[row]["grade_100"]) + ' ' + str(
+                df1.loc[row]["id"]) + ' double')
+            continue
+
+        if str(df1.loc[row]["fio"]) not in idr[0].text:
+            logger.error(str(i) + "/" + str(count) + " " + str(df1.loc[row]["fio"]) + ' ' + str(df1.loc[row]["course"]) + ' ' + str(
+                df1.loc[row]["grade_100"]) + ' ' + str(
+                df1.loc[row]["id"]) + ' nope')
+            continue
+
+        if str(df1.loc[row]["grade_100"]) in idr[0].text:
+            logger.info(str(i) + "/" + str(count) + " " + str(df1.loc[row]["fio"]) + ' ' + str(
+                df1.loc[row]["course"]) + ' ' + str(
+                df1.loc[row]["grade_100"]) + ' ' + str(
+                df1.loc[row]["id"]) + ' exists')
+            continue
+
+        idr[0].find_element_by_class_name('form-button').click()
+        time.sleep(1)
+        driver.find_element_by_id('id_grade').clear()
+        driver.find_element_by_id('id_grade').send_keys(str(df1.loc[row]["grade_100"]))
+        driver.find_element_by_id('id_certificate_url').clear()
+        driver.find_element_by_id('id_certificate_url').send_keys(f'https://openedu.urfu.ru/certificates/{str(df1.loc[row]["id"])}.pdf')
+        time.sleep(0.5)
+        driver.find_element_by_xpath('//*[@id="certificate-edit-form"]/button[1]').click()
+
+        WebDriverWait(driver, 30000).until(expected_conditions.presence_of_element_located(
+            (By.CLASS_NAME, 'modal-body')))
+        time.sleep(1)
+        if driver.find_element_by_class_name('modal-body').find_element_by_xpath('//p').text == 'Данные успешно обновлены':
+            # df1.loc[row]["result"] = 'ok'
+            logger.info(str(i) + "/" + str(count) + " " + str(df1.loc[row]["fio"]) + ' ' + str(df1.loc[row]["course"]) + ' ' + str(df1.loc[row]["grade_100"]) + ' ' + str(
+                df1.loc[row]["id"]) + ' ok')
+            driver.find_element_by_id('certificateFormModal').click()
+        else:
+            logger.error(str(i) + "/" + str(count) + " " + str(df1.loc[row]["fio"]) + ' ' + str(df1.loc[row]["course"]) + ' ' + str(df1.loc[row]["grade_100"]) + ' ' + str(
+                df1.loc[row]["id"]) + ' nope')
+            driver.find_element_by_id('certificateFormModal').click()
 
 if __name__ == '__main__':
-    # logger.add("_debug.log", format="{time} {level} {message}", level="DEBUG", rotation="10 RB", compression="zip")
-    # make_grade_report_order()   # Заказ отчета Grade Report
-    # make_exam_results_order()   # Заказ отчета Exam Results
-    # download_grade_report()  # Скачивание отчета Grade Report
-    # download_grade_report_urfu()  # Скачивание отчета Grade Report
-    # download_exam_results()  # Скачивание отчета Exam Results
-    # change_deadlines('RUBSCULT+fall_2020', 'semen.kazancev.gi@gmail.com', '01/31/2021 23:30')
-    # get_struct('PYDNN+spring_2021')
-    # get_struct_urfu('ISGB.m.EF-0043+fall_2020')
-    # make_grade_report_order_urfu()  # Заказ отчета Grade Report
-    # time.sleep(5)
-    # analyse.get_statement('calc.xlsx', statement_type='middle')
-    # analyse.get_statement('tmp.xlsx', statement_type='middle')
-    # analyse.get_proctor_report('tmp.xlsx')
-    # get_struct("CSHARP+fall_2021_net")
-    # get_struct_urfu("ISGB.m.BM-0089+fall_2021", start_course="09/05/2021", deadline="01/10/2022")
-    # get_info()
+    make_grade_report_order()   # Заказ отчета Grade Report на openedu.ru
+    make_grade_report_order_urfu()  # Заказ отчета Grade Report внутренней платформы
+    make_exam_results_order()   # Заказ отчета Exam Results на openedu.ru
+    download_grade_report()  # Скачивание отчета Grade Report с openedu.ru
+    download_grade_report_urfu()  # Скачивание отчета Grade Report с внтренней платформы
+    download_exam_results()  # Скачивание отчета Exam Results с openedu.ru
+    change_deadlines('RUBSCULT+fall_2020', 'semen.kazancev.gi@gmail.com', '01/31/2021 23:30') # изменение дедлайнов отдельного слушателя
+    get_struct('PYDNN+spring_2021')
+    get_struct_urfu('ISGB.m.EF-0043+fall_2020')
+    get_info()
     get_info_urfu()
-    # get_place_restore()
+    get_place_restore()
+    load_certs()
