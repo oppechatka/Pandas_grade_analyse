@@ -593,15 +593,14 @@ def analyse_files():
             continue
         else:
             logger.info('В обработке ' + file)
-            # get_statement(file, 'middle')  # statement_type= mini|middle|full|proctor
-            # search_by_fio(file)
-            # get_proctor_report(file)
             if file != 'tmp.xlsx' and file != 'tmp1.xlsx':
-                # get_proctor_report(file)
-                # get_statement(file, statement_type='middle')
                 try:
-                    # get_statement(file, statement_type='middle')
+                    # get_statement(file, 'mini')  # statement_type= mini|middle|full|proctor
+                    # get_statement(file, 'middle')  # statement_type= mini|middle|full|proctor
+                    # get_statement(file, 'full')  # statement_type= mini|middle|full|proctor
+                    # get_statement(file, 'proctor')  # statement_type= mini|middle|full|proctor
                     get_proctor_report(file)
+                    # search_by_fio(file)     # Поиск учеток по фио
                     logger.info(str(i) + '/' + str(len(gs.REQUESTS_FILES)))
                 except:
                     logger.warning('Проблема с ' + file)

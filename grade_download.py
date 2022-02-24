@@ -294,8 +294,6 @@ def login_urfu(web_driver):
     web_driver.find_element_by_id('login-email').send_keys(GS.USERNAME_URFU)
     web_driver.find_element_by_id('login-password').send_keys(GS.PASSWORD_URFU)
     web_driver.find_element_by_id('login-password').send_keys(Keys.ENTER)
-    # WebDriverWait(web_driver, 30000).until(expected_conditions.presence_of_element_located((By.CLASS_NAME, 'username')))
-    # WebDriverWait(web_driver, 30000).until(expected_conditions.presence_of_element_located((By.XPATH, '//*[@id="navbarDropdown"]')))
     WebDriverWait(web_driver, 30000).until(
         expected_conditions.presence_of_element_located((By.CLASS_NAME, 'user-image-frame')))
 
@@ -338,6 +336,19 @@ def make_exam_results_order():
         order_exam_results(course, driver)
     driver.close()
 
+def make_exam_results_order_urfu():
+    """
+    Функция создает WebDriver с настрйоками для заказа отчета Grade report, проходит по списку курсов и в каждом
+    из них нажимает на клавишу "Создать отчет наблюдаемых испытаний" с помощью функции order_exam_results. Затем
+    завершает работу WebDriver.
+    """
+    driver = make_web_driver()
+    login_urfu(driver)
+    if driver.find_element_by_class_name('cc-dismiss'):
+        driver.find_element_by_class_name('cc-dismiss').click()
+    for course in GS.LIST_COURSES_URFU:
+        order_exam_results_urfu(course, driver)
+    driver.close()
 
 def download_grade_report():
     """
@@ -385,6 +396,9 @@ def download_exam_results():
 
 
 def change_deadlines(course_name: str, email: str, deadline: str):
+    '''
+    изменение дедлайнов отдельного слушателя
+    '''
     driver = make_web_driver()
     login(driver)
     course_url = f'https://courses.openedu.ru/courses/course-v1:urfu+{course_name}/instructor#view-extensions'
@@ -412,9 +426,9 @@ def change_deadlines(course_name: str, email: str, deadline: str):
     driver.close()
 
 
-def date_open(txt: str):
+def date_open(txt: str, delta: int = 0):
     i_month, i_day, i_year = txt.split('/')
-    p = date(int(i_year), int(i_month), int(i_day)) + timedelta(days=203)
+    p = date(int(i_year), int(i_month), int(i_day)) + timedelta(days=delta)
     return p.strftime('%m/%d/%Y')
 
 
@@ -604,6 +618,49 @@ def get_struct(course_name: str, start_course: str = "09/05/2021", deadline: str
 
     driver.close()
 
+def change_score(course_name: str, score: str, logname: str, block):
+    '''
+    подставление баллов  по одному слушателю
+    '''
+    driver = make_web_driver()
+    login(driver)
+    course_url = f'https://courses.openedu.ru/courses/course-v1:urfu+{course_name}/instructor#view-student_admin'
+    driver.get(course_url)
+    driver.set_window_size(1920, 1022)
+
+    driver.find_element(By.NAME, "score-select-single").send_keys(score)
+    driver.find_element(By.NAME, "student-select-grade").send_keys(logname)
+    driver.find_element(By.NAME, "problem-select-single").send_keys(block)
+    driver.find_element(By.NAME, "override-problem-score-single").click()
+    WebDriverWait(driver, 2000).until(
+        expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, '#set-extension > p:nth-child(7)')))
+    driver.close()
+
+def order_exam_results_urfu(course_name: str, w_driver):
+    """
+    Функция переходит на страницу "Преподаватель", подраздел "Скачивание данных". Прокручивает страницу до
+    таблицы с выгрузками и ожидает ее загрузки. Затем нажимает на клавишу
+    "Создать отчёт о результатах наблюдаемого испытания", ожидает появления сообщения о том, что заказ принят
+    или ошибку и переходит на главную страницу портала.
+    :param course_name: Шифр курса (прим. ARCHC+fall_2020)
+    :param w_driver: WebDriver с которого ведется работа
+    """
+    course_url = f'https://courses.openedu.urfu.ru/courses/course-v1:UrFU+{course_name}/instructor#view-data_download'
+    w_driver.get(course_url)
+    w_driver.execute_script("window.scrollTo(0,1200)")
+    WebDriverWait(w_driver, 30000).until(expected_conditions.presence_of_element_located(
+        (By.CLASS_NAME, "file-download-link")))
+    w_driver.execute_script("window.scrollTo(0,500)")
+    try:
+        w_driver.find_element_by_css_selector(
+            ".reports-download-container > p:nth-child(10) > input:nth-child(1)").click()
+        WebDriverWait(w_driver, 30000).until(lambda x: expected_conditions.visibility_of_element_located(
+            (By.CSS_SELECTOR, "#report-request-response")) or expected_conditions.visibility_of_element_located(
+            (By.CSS_SELECTOR,
+                "#report-request-response-error")))  # Проверка двух условий работает только через lambda
+    except NoSuchElementException:
+        print("Нет наблюдаемых испытаний на курсе - " + course_name)
+    w_driver.get('https://courses.openedu.ru/')
 
 def get_info():
     '''
@@ -901,9 +958,9 @@ if __name__ == '__main__':
     download_grade_report_urfu()  # Скачивание отчета Grade Report с внтренней платформы
     download_exam_results()  # Скачивание отчета Exam Results с openedu.ru
     change_deadlines('RUBSCULT+fall_2020', 'semen.kazancev.gi@gmail.com', '01/31/2021 23:30') # изменение дедлайнов отдельного слушателя
-    get_struct('PYDNN+spring_2021')
-    get_struct_urfu('ISGB.m.EF-0043+fall_2020')
-    get_info()
-    get_info_urfu()
-    get_place_restore()
-    load_certs()
+    get_struct('PYDNN+spring_2021') # установка дат открытия материалов, дедлайнов, генерация html для графика открытия материалов
+    get_struct_urfu('ISGB.m.EF-0043+fall_2020') # установка дат открытия материалов, дедлайнов, генерация html для графика открытия материалов внутренней платформы
+    get_info() # определение количества слушателей платформы
+    get_info_urfu() # определение количества слушателей внутренней платформы
+    get_place_restore() # создание списка адресов мест восстановления баллов
+    load_certs() # загрузка сертификатов
