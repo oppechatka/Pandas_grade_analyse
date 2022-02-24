@@ -151,7 +151,7 @@ crithink = {"Тесты (Avg)": 0.0015,
             "Grade": 0.01,
             "Columns_for_order": ["Тесты (проходной балл 40)",
                                   "Кейсы (проходной балл 40)",
-                                  "Взаимопроверка (проходной балл 40)",
+                                  "Взаимопроверка",
                                   "Задания по разделу (проходной балл 40)",
                                   "Экзамен (проходной балл 40)",
                                   "Итоговый балл"],
@@ -386,7 +386,7 @@ govbusiness = {"Тест самоконтроля (Avg)": 0.0005,
                "Учебное задание (Avg)": 0.0015,
                "Контрольное задание (Avg)": 0.002,
                "Промежуточный контроль (Avg)": 0.002,
-               "Итоговый контроль": 0.004,
+               "Итоговый контроль (Avg)": 0.004,
                "Grade": 0.01,
                "Columns_for_order": ["Тест (проходной балл 40)",
                                      "Учебные задания (проходной балл 40)",
@@ -399,7 +399,7 @@ govbusiness = {"Тест самоконтроля (Avg)": 0.0005,
                                       "Учебное задание (Avg)",
                                       "Контрольное задание (Avg)",
                                       "Промежуточный контроль (Avg)",
-                                      "Итоговый контроль",
+                                      "Итоговый контроль (Avg)",
                                       "Grade"],
                "Sheet_name": "Взаим.гос.и бизн."
                }
@@ -420,17 +420,20 @@ hist_view = {"Test (Avg)": 0.003,
              "Sheet_name": "История 5 подходов"
              }
 
-hist = {"Тестовое задание (Avg)": 0.003,
-        "Учебное задание (Avg)": 0.003,
+hist = {"Тестовое задание (Avg)": 0.002,            #Добавили промежуточный контроль Проверить
+        "Учебное задание (Avg)": 0.002,
+        "Промежуточный контроль (Avg)": 0.002,
         "Итоговый контроль (Avg)": 0.004,
         "Grade": 0.01,
         "Columns_for_order": ["Тесты (проходной балл 40)",
                               "Учебные задания (проходной балл 40)",
+                              "Промежуточный контроль (проходной балл 40)",
                               "Экзамен (проходной балл 40)",
                               "Итоговый балл"],
         "Columns_for_report": ["Email",
                                "Тестовое задание (Avg)",
                                "Учебное задание (Avg)",
+                               "Промежуточный контроль (Avg)",
                                "Итоговый контроль (Avg)",
                                "Grade"],
         "Sheet_name": "История"
@@ -542,7 +545,7 @@ legal = {"Тест по разделу (Avg)": 0.008,
          "Sheet_name": "Норм.-прав. обесп.онл.обуч."
          }
 
-lifesafety = {"Тестовое задание (Avg)": 0.002,
+lifesafety = {"Тестовое задание (Avg)": 0.002,          #spring2022+
               "Практическое задание (Avg)": 0.002,
               "Рубежный контроль (Avg)": 0.002,
               "Итоговый контроль (Avg)": 0.004,
@@ -911,7 +914,7 @@ smngm = {"Учебное задание (Avg)": 0.006,
          "Sheet_name": "Самоменеджмент"
          }
 
-softskills = {"Lab (Avg)": 0.0025,
+softskills = {"Lab (Avg)": 0.0025,                # коэффициенты открытого и скрытого запусков spring_2022 совпадают
               "Midterm Exam (Avg)": 0.0035,
               "Final Exam (Avg)": 0.004,
               "Grade": 0.01,
@@ -927,12 +930,12 @@ softskills = {"Lab (Avg)": 0.0025,
               "Sheet_name": "Soft Skill"
               }
 
-# softskills = {"Homework (Avg)": 0.0015,    # Скрытый Самоменеджмент
+# softskills = {"Homework (Avg)": 0.0015,             # СЕТЕВОЙ Запуск курса
 #               "Lab (Avg)": 0.0015,
-#               "Midterm Exam": 0.01,
-#               "Final Exam": 0.01,
+#               "Midterm Exam (Avg)": 0.003,
+#               "Final Exam (Avg)": 0.004,
 #               "Grade": 0.01,
-#               "Columns_for_order": ["Домашние задания (проходной балл 40)",
+#               "Columns_for_order": ["Домашнее задание (проходной балл 40)",
 #                                     "Учебные задания (проходной балл 40)",
 #                                     "Промежуточный контроль (проходной балл 40)",
 #                                     "Экзамен (проходной балл 40)",
@@ -940,8 +943,8 @@ softskills = {"Lab (Avg)": 0.0025,
 #               "Columns_for_report": ["Email",
 #                                      "Homework (Avg)",
 #                                      "Lab (Avg)",
-#                                      "Midterm Exam",
-#                                      "Final Exam",
+#                                      "Midterm Exam (Avg)",
+#                                      "Final Exam (Avg)",
 #                                      "Grade"],
 #               "Sheet_name": "Soft Skill РТФ"
 #               }
@@ -1065,21 +1068,21 @@ triz = {"Homework (Avg)": 0.005,    #не правильно будет счит
         }
 
 
-geoinf = {"Учебное задание (Avg)": 0.01,
-          "Контрольное задание (Avg)": 0.01,
-          "Итоговый контроль": 0.01,
-          "Grade": 0.01,
-          "Columns_for_order": ["Учебное задание",
-                                "Контрольное задание",
-                                "Экзамен",
-                                "Итоговый балл"],
-          "Columns_for_report": ["Email",
-                                 "Учебное задание (Avg)",
-                                 "Контрольное задание (Avg)",
-                                 "Итоговый контроль",
-                                 "Grade"],
-          "Sheet_name": "ГЕО"
-          }
+# geoinf = {"Учебное задание (Avg)": 0.003,
+#           "Контрольное задание (Avg)": 0.003,
+#           "Итоговый контроль": 0.01,
+#           "Grade": 0.01,
+#           "Columns_for_order": ["Учебное задание",
+#                                 "Контрольное задание",
+#                                 "Экзамен",
+#                                 "Итоговый балл"],
+#           "Columns_for_report": ["Email",
+#                                  "Учебное задание (Avg)",
+#                                  "Контрольное задание (Avg)",
+#                                  "Итоговый контроль",
+#                                  "Grade"],
+#           "Sheet_name": "ГЕО"
+#           }
 
 publspeak = {"Тесты самоконтроля (Avg)": 0.01,
           "Учебные задания (Avg)": 0.01,
@@ -1312,9 +1315,10 @@ courses = {
 }
 
 LIST_COURSES = [
-    'ANALYTCHEM2+fall_2021',  # новый, настроить
+    'ANALYTCHEM2+fall_2021',          # новый, настроить
     'ARCHC+fall_2021',
     'BIOECO+fall_2021',
+    'BIOECO+fall_2021_net',
     'CALC+fall_2021',
     'CELLBIO+fall_2021',
     'CHEMSO+fall_2021',
@@ -1330,14 +1334,16 @@ LIST_COURSES = [
     'EFFSOLUTION+fall_2021',
     'ELB+fall_2021',
     'ELECD+fall_2021',
-    'engforinclusb+fall_2021',  # новый, настроить
+    'engforinclusb+fall_2021',          # новый, настроить
     'ENGM+fall_2021',
     'GEOM+fall_2021',
     'GOVBUSINESS+fall_2021',
     'HIST_VIEW+fall_2021',
+    'HIST_VIEW+fall_2021_net',
     'HIST+fall_2021',
     'HIST+fall_2021_net',
     'Inclus_M1+fall_2021',
+    'Inclus_M1+fall_2021_net',
     'Inclus_M2+fall_2021',
     'INFENG+fall_2021',
     'INFENG+fall_2021_net',
@@ -1345,11 +1351,13 @@ LIST_COURSES = [
     'INTPR+fall_2021_net',
     'INTROBE+fall_2021',
     'ITS+fall_2021',
+    'ITS+fall_2021_net',
     'LEGAL+fall_2021',
     'LifeSafety+fall_2021',
     'LifeSafety+fall_2021_net',
     'LineAlg+_fall_2021',
     'MANEGEMACH+fall_2021',
+    'MANEGEMACH+fall_2021_net',
     'MCS+fall_2021',
     'METHODS+fall_2021',
     'METR+fall_2021',
@@ -1359,40 +1367,107 @@ LIST_COURSES = [
     'PersonalSafety+fall_2021',
     'PHILOSOPHY+fall_2021',
     'PHILS+fall_2021',
+    'PHILS+fall_2021_net',
     'PHILSCI+fall_2021',
     'PHILSCI+fall_2021_net',
     'PhysCult+fall_2021',
     'PRGRMM+fall_2021',
     'PRGRMM+fall_2021_net',
     'PROJ+fall_2021',
+    'PROJ+fall_2021_net',
     'PSYMEDIA+fall_2021',
     'PYAP+fall_2021',
+    'PYAP+fall_2021_net',
     'PYDNN+fall_2021',
+    'PYDNN+fall_2021_net',
     'RUBSCULT+fall_2021',
+    'RUBSCULT+fall_2021_net',
     'SIGPROC+fall_2021',
     'SIGPROC+fall_2021_net',
     'SMNGM+fall_2021',
     'SoftSkills+fall_2021',
     'SoftSkills+fall_2021_net',
     'SYSTENG+fall_2021',
+    'SYSTENG+fall_2021_net',
     'TECO+fall_2021',
     'TELECOM+fall_2021',
     'TELECOM+fall_2021_net',
     'TEPL+fall_2021',
     'TheorVer+fall_2021',
     'TRIZ+fall_2021',
+    'ANALYTCHEM2+spring_2022',
+    'ARCHC+spring_2022',
+    'BIOECO+spring_2022',
+    'CALC+spring_2022',
+    'CELLBIO+spring_2022',
+    'CHEMSO+spring_2022',
+    'chryso+spring_2022',
+    'Crithink+spring_2022',
+    'CSHARP+spring_2022',
+    'CSHARP+spring_2022_net',
+    'DesignBasics+spring_2022',
+    'ECOEFF+spring_2022',
+    'ECOS+spring_2022',
+    'EDUBASE+spring_2022',
+    'EFFSOLUTION+spring_2022',
+    'ELB+spring_2022',
+    'ELECD+spring_2022',
+    'ENGM+spring_2022',
+    'GEOM+spring_2022',
+    'GOVBUSINESS+spring_2022',
+    'HIST_VIEW+spring_2022',
+    'HIST+spring_2022',
+    'HIST+spring_2022_net',
+    'Inclus_M1+spring_2022',
+    'Inclus_M2+spring_2022',
+    'INFENG+spring_2022',
+    'INTPR+spring_2022',
+    'INTROBE+spring_2022',
+    'ITS+spring_2022',
+    'LEGAL+spring_2022',
+    'LifeSafety+spring_2022',
+    'LifeSafety+spring_2022_net',
+    'LineAlg+spring_2022',
+    'MANEGEMACH+spring_2022',
+    'MCS+spring_2022',
+    'METHODS+spring_2022',
+    'METR+spring_2022',
+    'NATCULT+spring_2022',
+    'NUCMED+spring_2022',
+    'PersonalSafety+spring_2022',
+    'PHILOSOPHY+spring_2022',
+    'PHILOSOPHY+spring_2022_net',
+    'PHILS+spring_2022',
+    'PHILSCI+spring_2022',
+    'PHILSCI+spring_2022_net',
+    'PhysCult+spring_2022',
+    'PRGRMM+spring_2022',
+    'PROJ+spring_2022',
+    'PROJ+spring_2022_net',
+    'PSYMEDIA+spring_2022',
+    'PYAP+spring_2022',
+    'PYAP+spring_2022_net',
+    'PYDNN+spring_2022',
+    'PYDNN+spring_2022_net',
+    'RUBSCULT+spring_2022',
+    'SIGPROC+spring_2022',
+    'SMNGM+spring_2022',
+    'SMNGM+spring_2022_net',
+    'SoftSkills+spring_2022',
+    'SoftSkills+spring_2022_net',
+    'SYSTENG+spring_2022',
+    'TECO+spring_2022',
+    'TELECOM+spring_2022',
+    'TEPL+spring_2022',
+    'TheorVer+spring_2022',
+    'TRIZ+spring_2022',
 ]
 
 LIST_COURSES_URFU = [
-    'PUBLSPEAK+fall_2021',  # искусство публичных выступлений
-    'IHA.b.Hi-0058+fall_2021',  # история
-    'CPESOC.c.Hu-0128+fall_2021',  # личная эффективность
-    'ISGB.b.SS-0028+fall_2021',  # политология
-    'IHA.b.Hu-0061+fall_2021',  # психология
-    'FILOSOFBASE+fall_2021',  # философия базовый курс
-    'UralENIN.b.Ch-0010+fall_2021',  # химия
-    'ISGB.m.EF-0043+fall_2021',  # экономика общественного сектора
-    'GREEC+fall_2021',  # культура эллады
-    'ISGB.m.BM-0089+fall_2021', # кадровая политика
-    'IEC6185+fall_2020', # МЭК для ДПО
+    'PUBLSPEAK+spring_2022',  # искусство публичных выступлений
+    'IHA.b.Hi-0058+spring_2022',  # история
+    'CPESOC.c.Hu-0128+spring_2022',  # личная эффективность
+    'FILOSOFBASE+fall_2022',  # философия базовый курс
+    'UralENIN.b.Ch-0010+spring_2022',  # химия
+    'ISGB.m.EF-0043+spring_2022',  # экономика общественного сектора
 ]
